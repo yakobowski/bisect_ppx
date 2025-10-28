@@ -162,3 +162,35 @@ function handle_collapsible_click()
 }
 
 handle_collapsible_click();
+
+function handle_show_empty_files_clicks()
+{
+    var checkbox = document.querySelector("#show-empty-files-input");
+    if (checkbox === null)
+        return;
+
+    var empty_files = document.querySelectorAll("div[data-total='0']");
+
+    function set_hidden(hidden) {
+        for (var i = 0; i < empty_files.length; i++) {
+            if (hidden)
+                empty_files[i].classList.add("hidden");
+            else
+                empty_files[i].classList.remove("hidden");
+        }
+    }
+
+    checkbox.onchange = function () {
+        set_hidden(!checkbox.checked);
+        localStorage.setItem("show-empty-files", checkbox.checked);
+    };
+
+    var show_empty_files = localStorage.getItem("show-empty-files");
+    if (show_empty_files === null)
+        show_empty_files = "true";
+
+    checkbox.checked = show_empty_files === "true";
+    set_hidden(!checkbox.checked);
+};
+
+handle_show_empty_files_clicks();

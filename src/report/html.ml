@@ -190,6 +190,10 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
       <h1>%s</h1>
       <h2>%s</h2>
     </div>
+    <div id="settings">
+      <input type="checkbox" id="show-empty-files-input" />
+      <label for="show-empty-files-input">show empty files</label>
+    </div>
     <div id="files">
 |}
       (theme_class theme)
@@ -211,9 +215,10 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
           visited total;
       in
       function
-      | File (name, html_file, stats) ->
-         write {|      <div>
-|};
+      | File (name, html_file, ((_, total) as stats)) ->
+         write {|      <div data-total="%d">
+|}
+           total;
          if tree then
            write {|        <span class="summary-indicator"></span>
 |};

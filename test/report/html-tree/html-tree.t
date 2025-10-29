@@ -34,6 +34,20 @@
       <title>Coverage report</title>
       <meta name="description" content="85.71% coverage overall"/>
       <link rel="stylesheet" type="text/css" href="coverage.css"/>
+      <script>
+        let theme = localStorage.getItem("theme");
+        if (theme === null) {
+          // Find out what browser prefers and apply it
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          } else {
+            theme = "light";
+          }
+        }
+        let html = document.querySelector("html");
+        html.classList.add(theme);
+        html.classList.add("");
+      </script>
     </head>
     <body>
       <div id="header">
@@ -41,10 +55,18 @@
         <h2>85.71%</h2>
       </div>
       <div id="settings">
-        <input type="checkbox" id="show-empty-files-input" />
-        <label for="show-empty-files-input">show empty files</label>
-        <input type="checkbox" id="tree-view-input" />
-        <label for="tree-view-input">tree view</label>
+        <div>
+          <input type="checkbox" id="show-empty-files-input" />
+          <label for="show-empty-files-input">show empty files</label>
+        </div>
+        <div>
+          <input type="checkbox" id="tree-view-input" />
+          <label for="tree-view-input">tree view</label>
+        </div>
+        <div style="margin-left: 20px">
+          <input type="checkbox" id="group-files-input" />
+          <label for="group-files-input">group files</label>
+        </div>
       </div>
       <div id="files">
         <div data-total="2">
@@ -104,6 +126,20 @@
       <title>test_tree.ml &mdash; Coverage report</title>
       <meta name="description" content="100.00% coverage in test_tree.ml">
       <link rel="stylesheet" href="coverage.css"/>
+      <script>
+        let theme = localStorage.getItem("theme");
+        if (theme === null) {
+          // Find out what browser prefers and apply it
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          } else {
+            theme = "light";
+          }
+        }
+        let html = document.querySelector("html");
+        html.classList.add(theme);
+        html.classList.add("");
+      </script>
       <script src="highlight.pack.js"></script>
       <script>hljs.initHighlightingOnLoad();</script>
     </head>
@@ -146,6 +182,20 @@
       <title>foo.ml &mdash; Coverage report</title>
       <meta name="description" content="100.00% coverage in foo/foo.ml">
       <link rel="stylesheet" href="../coverage.css"/>
+      <script>
+        let theme = localStorage.getItem("theme");
+        if (theme === null) {
+          // Find out what browser prefers and apply it
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          } else {
+            theme = "light";
+          }
+        }
+        let html = document.querySelector("html");
+        html.classList.add(theme);
+        html.classList.add("");
+      </script>
       <script src="../highlight.pack.js"></script>
       <script>hljs.initHighlightingOnLoad();</script>
     </head>

@@ -74,14 +74,13 @@ Or-pattern.
   let _ =
     try ()
     with (Exit | End_of_file) as ___bisect_matched_value___ ->
-      (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-         ___bisect_matched_value___
-       with
+      ((match ___bisect_matched_value___ with
       | Exit ->
           ___bisect_visit___ 0;
           ()
       | End_of_file ->
           ___bisect_visit___ 1;
           ()
-      | _ -> ());
+      | _ -> ())
+      [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
       ()

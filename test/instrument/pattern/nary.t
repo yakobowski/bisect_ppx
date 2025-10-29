@@ -8,9 +8,7 @@ Tuple.
   let _ =
     match (`A, `C) with
     | ((`A | `B), (`C | `D)) as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
+        ((match ___bisect_matched_value___ with
         | `A, `C ->
             ___bisect_visit___ 2;
             ___bisect_visit___ 1;
@@ -27,7 +25,8 @@ Tuple.
             ___bisect_visit___ 3;
             ___bisect_visit___ 4;
             ()
-        | _ -> ());
+        | _ -> ())
+        [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
         ___bisect_post_visit___ 0 (print_endline "foo")
 
 
@@ -46,9 +45,7 @@ Record.
     | ___bisect_matched_value___ -> (
         match ___bisect_matched_value___ with
         | { a = true | false; b = true | false } ->
-            (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-               ___bisect_matched_value___
-             with
+            ((match ___bisect_matched_value___ with
             | { a = true; b = true } ->
                 ___bisect_visit___ 2;
                 ___bisect_visit___ 1;
@@ -65,7 +62,8 @@ Record.
                 ___bisect_visit___ 3;
                 ___bisect_visit___ 4;
                 ()
-            | _ -> ());
+            | _ -> ())
+            [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
             ___bisect_post_visit___ 0 (print_endline "foo"))
 
 
@@ -80,9 +78,7 @@ Array.
   let _ =
     match [| `A; `C |] with
     | [| `A | `B; `C | `D |] as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
+        ((match ___bisect_matched_value___ with
         | [| `A; `C |] ->
             ___bisect_visit___ 2;
             ___bisect_visit___ 1;
@@ -99,7 +95,8 @@ Array.
             ___bisect_visit___ 3;
             ___bisect_visit___ 4;
             ()
-        | _ -> ());
+        | _ -> ())
+        [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
         ___bisect_post_visit___ 0 (print_endline "foo")
     | _ ->
         ___bisect_visit___ 5;

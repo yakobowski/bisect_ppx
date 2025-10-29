@@ -171,9 +171,10 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   let _ = (___bisect_post_visit___ 0 (print_endline "foo") : unit)
   
   let _ =
-   fun () : unit ->
-    ___bisect_visit___ 1;
-    print_endline "foo"
+   fun () ->
+    (___bisect_visit___ 1;
+     print_endline "foo"
+      : unit)
 
 
   $ bash test.sh <<'EOF'
@@ -234,14 +235,16 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   end
   
   let _ =
-    (module struct
-      let x = ()
-    end : X)
+    ((module struct
+       let x = ()
+     end)
+      : (module X))
   
   let _ =
-    (module struct
-      let x = ___bisect_post_visit___ 0 (print_endline "foo")
-    end : X)
+    ((module struct
+       let x = ___bisect_post_visit___ 0 (print_endline "foo")
+     end)
+      : (module X))
 
 
   $ bash test.sh <<'EOF'

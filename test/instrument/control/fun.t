@@ -26,9 +26,10 @@ Preservation of optional labeled arguments.
   > let _ = (fun ?l:_ -> ()) [@ocaml.warning "-16"]
   > EOF
   let _ =
-   fun [@ocaml.warning "-16"] ?l:_ ->
+   (fun ?l:_ ->
     ___bisect_visit___ 0;
-    ()
+    ())
+    [@ocaml.warning "-16"]
 
 
 Preservation of default values. Instrumentation of entry into default values.
@@ -54,9 +55,10 @@ Recursive instrumentation of main subexpression. Instrumentation suppressed on
   > let _ = fun () -> fun () -> ()
   > EOF
   let _ =
-   fun () () ->
-    ___bisect_visit___ 0;
-    ()
+   fun () ->
+    fun () ->
+     ___bisect_visit___ 0;
+     ()
 
 
 Instrumentation placed correctly if immediate child is a "return type"
@@ -66,9 +68,10 @@ constraint.
   > let _ = fun () -> (() : unit)
   > EOF
   let _ =
-   fun () : unit ->
-    ___bisect_visit___ 0;
-    ()
+   fun () ->
+    (___bisect_visit___ 0;
+     ()
+      : unit)
 
 
 Gentle handling of optional argument elimination. See
@@ -103,6 +106,7 @@ subexpression are.
   let _ =
    fun ?(l =
          ___bisect_visit___ 1;
-         ___bisect_post_visit___ 0 (print_endline "foo")) () ->
-    ___bisect_visit___ 2;
-    print_endline "bar"
+         ___bisect_post_visit___ 0 (print_endline "foo")) ->
+    fun () ->
+     ___bisect_visit___ 2;
+     print_endline "bar"

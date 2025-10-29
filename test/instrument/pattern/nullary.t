@@ -118,7 +118,7 @@ Module.
   module type L = module type of List
   
   let _ =
-    match (module List : L) with
+    match ((module List) : (module L)) with
     | (module L) ->
         ___bisect_visit___ 0;
         ()

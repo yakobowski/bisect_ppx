@@ -11,16 +11,15 @@ the guard, rather than the pattern.
   let _ =
     match `A `B with
     | `A (`B | `C) as ___bisect_matched_value___
-      when (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-              ___bisect_matched_value___
-            with
+      when ((match ___bisect_matched_value___ with
            | `A `B ->
                ___bisect_visit___ 1;
                ()
            | `A `C ->
                ___bisect_visit___ 2;
                ()
-           | _ -> ());
+           | _ -> ())
+           [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
            ___bisect_post_visit___ 0 (print_endline "foo");
            true ->
         ___bisect_visit___ 3;
@@ -38,16 +37,15 @@ the guard, rather than the pattern.
   let _ =
     match () with
     | exception ((Exit | Failure _) as ___bisect_matched_value___)
-      when (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-              ___bisect_matched_value___
-            with
+      when ((match ___bisect_matched_value___ with
            | Exit ->
                ___bisect_visit___ 2;
                ()
            | Failure _ ->
                ___bisect_visit___ 3;
                ()
-           | _ -> ());
+           | _ -> ())
+           [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
            ___bisect_post_visit___ 0 (print_endline "foo");
            true ->
         ___bisect_visit___ 4;

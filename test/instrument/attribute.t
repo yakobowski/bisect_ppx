@@ -8,7 +8,7 @@ Attributes can suppress instrumentation in an expression subtree.
   >     ignore
   > EOF
   let _ =
-    if true then fun [@coverage off] () -> print_endline "foo"
+    if true then (fun () -> print_endline "foo") [@coverage off]
     else (
       ___bisect_visit___ 0;
       ignore)
@@ -95,14 +95,13 @@ Or-pattern coverage is suppressed for cases with [@coverage off].
     | (exception Not_found) | (exception Exit) -> () [@coverage off]
     | `A | `B -> () [@coverage off]
     | (`C | `D) as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
+        ((match ___bisect_matched_value___ with
         | `C ->
             ___bisect_visit___ 0;
             ()
         | `D ->
             ___bisect_visit___ 1;
             ()
-        | _ -> ());
+        | _ -> ())
+        [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
         ()

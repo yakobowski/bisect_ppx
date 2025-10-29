@@ -22,6 +22,20 @@
       <title>Coverage report</title>
       <meta name="description" content="33.33% coverage overall"/>
       <link rel="stylesheet" type="text/css" href="coverage.css"/>
+      <script>
+        let theme = localStorage.getItem("theme");
+        if (theme === null) {
+          // Find out what browser prefers and apply it
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          } else {
+            theme = "light";
+          }
+        }
+        let html = document.querySelector("html");
+        html.classList.add(theme);
+        html.classList.add("");
+      </script>
     </head>
     <body>
       <div id="header">
@@ -29,8 +43,18 @@
         <h2>33.33%</h2>
       </div>
       <div id="settings">
-        <input type="checkbox" id="show-empty-files-input" />
-        <label for="show-empty-files-input">show empty files</label>
+        <div>
+          <input type="checkbox" id="show-empty-files-input" />
+          <label for="show-empty-files-input">show empty files</label>
+        </div>
+        <div>
+          <input type="checkbox" id="tree-view-input" />
+          <label for="tree-view-input">tree view</label>
+        </div>
+        <div style="margin-left: 20px">
+          <input type="checkbox" id="group-files-input" />
+          <label for="group-files-input">group files</label>
+        </div>
       </div>
       <div id="files">
         <div data-total="6">
@@ -54,6 +78,20 @@
       <title>test.ml &mdash; Coverage report</title>
       <meta name="description" content="33.33% coverage in test.ml">
       <link rel="stylesheet" href="coverage.css"/>
+      <script>
+        let theme = localStorage.getItem("theme");
+        if (theme === null) {
+          // Find out what browser prefers and apply it
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          } else {
+            theme = "light";
+          }
+        }
+        let html = document.querySelector("html");
+        html.classList.add(theme);
+        html.classList.add("");
+      </script>
       <script src="highlight.pack.js"></script>
       <script>hljs.initHighlightingOnLoad();</script>
     </head>

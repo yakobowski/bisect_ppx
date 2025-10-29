@@ -61,16 +61,15 @@ Or-pattern.
    fun ___bisect_matched_value___ ->
     match ___bisect_matched_value___ with
     | None | Some _ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
+        ((match ___bisect_matched_value___ with
         | None ->
             ___bisect_visit___ 0;
             ()
         | Some _ ->
             ___bisect_visit___ 1;
             ()
-        | _ -> ());
+        | _ -> ())
+        [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
         print_endline "foo"
 
 
@@ -81,14 +80,13 @@ Or-pattern with polymorphic variants.
   > EOF
   let _ = function
     | (`A | `B) as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
+        ((match ___bisect_matched_value___ with
         | `A ->
             ___bisect_visit___ 0;
             ()
         | `B ->
             ___bisect_visit___ 1;
             ()
-        | _ -> ());
+        | _ -> ())
+        [@ocaml.warning "-4-8-9-11-26-27-28-33"]);
         print_endline "foo"

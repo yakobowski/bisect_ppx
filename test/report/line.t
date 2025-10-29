@@ -53,6 +53,20 @@ Reporter still works even in the presence of line number directives.
       <title>test2.ml &mdash; Coverage report</title>
       <meta name="description" content="50.00% coverage in test2.ml">
       <link rel="stylesheet" href="coverage.css"/>
+      <script>
+        let theme = localStorage.getItem("theme");
+        if (theme === null) {
+          // Find out what browser prefers and apply it
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            theme = "dark";
+          } else {
+            theme = "light";
+          }
+        }
+        let html = document.querySelector("html");
+        html.classList.add(theme);
+        html.classList.add("");
+      </script>
       <script src="highlight.pack.js"></script>
       <script>hljs.initHighlightingOnLoad();</script>
     </head>

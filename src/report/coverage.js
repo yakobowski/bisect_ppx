@@ -203,6 +203,53 @@ function handle_settings_clicks()
             return show_empty || el.dataset.total !== '0';
         });
 
+        var get_sort_key = function(item, type_or_sort_override) {
+            var is_file_element = item.hasOwnProperty('element') || item.hasOwnProperty('name');
+            var is_dir_element = item.hasOwnProperty('dirs');
+
+            var sort_type;
+            var type;
+            if (typeof type_or_sort_override === 'string') {
+                if (['nb-statements', 'coverage', 'filename'].indexOf(type_or_sort_override) !== -1) {
+                    sort_type = type_or_sort_override;
+                    type = is_file_element ? 'file' : (is_dir_element ? 'directory' : 'flat');
+                } else {
+                    sort_type = sorting;
+                    type = type_or_sort_override;
+                }
+            } else {
+                sort_type = sorting;
+                type = is_file_element ? 'file' : (is_dir_element ? 'directory' : 'flat');
+            }
+
+
+            switch (sort_type) {
+                case 'nb-statements':
+                    if (type === 'file') return -item.statements;
+                    if (type === 'directory') return -item.stats.total;
+                    return -parseInt(item.dataset.statements);
+                case 'coverage':
+                    if (type === 'file') return -item.coverage;
+                    if (type === 'directory') {
+                        var percentage = 0;
+                        if (item.stats.total > 0) {
+                            percentage = 100 * item.stats.visited / item.stats.total;
+                        }
+                        return -percentage;
+                    }
+                    return -parseFloat(item.dataset.coverage);
+                case 'filename':
+                default:
+                    if (type === 'file') return item.name.toLowerCase();
+                    if (type === 'directory') return item.toLowerCase();
+                    var link = item.querySelector("a");
+                    var dirname_span = link.querySelector("span.dirname");
+                    var dirname = dirname_span ? dirname_span.textContent : "";
+                    var basename = link.lastChild.textContent;
+                    return (dirname + basename).toLowerCase();
+            }
+        }
+
         if (use_tree_view) {
             var tree = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
 
@@ -248,35 +295,6 @@ function handle_settings_clicks()
 
             function render_tree_node(node, name, path) {
                 var dir_html = "";
-
-                var get_sort_key = function(item, type) {
-                    switch (sorting) {
-                        case 'nb-statements':
-                            if (type === 'file') {
-                                return -item.statements;
-                            } else { // directory
-                                return -item.stats.total;
-                            }
-                        case 'coverage':
-                            if (type === 'file') {
-                                return -item.coverage;
-                            } else { // directory
-                                var percentage = 0;
-                                if (item.stats.total > 0) {
-                                    percentage = 100 * item.stats.visited / item.stats.total;
-                                }
-                                return -percentage;
-                            }
-                        case 'filename':
-                        default:
-                            if (type === 'file') {
-                                return item.name.toLowerCase();
-                            } else { // directory name
-                                return item.toLowerCase();
-                            }
-                    }
-                }
-
                 var sorted_dirs = Object.keys(node.dirs).sort(function(a, b) {
                     if (sorting === 'filename') {
                         return a.localeCompare(b);
@@ -399,6 +417,23 @@ function handle_settings_clicks()
             files_container.innerHTML = render_tree_node(tree, null, null);
 
         } else { // flat view
+            visible_files.sort(function(a, b) {
+                var val_a = get_sort_key(a);
+                var val_b = get_sort_key(b);
+
+                if (sorting === 'filename') {
+                    return val_a.localeCompare(val_b);
+                }
+
+                if (val_a < val_b) return -1;
+                if (val_a > val_b) return 1;
+
+                // secondary sort by name
+                var name_a = get_sort_key(a, 'filename');
+                var name_b = get_sort_key(b, 'filename');
+                return name_a.localeCompare(name_b);
+            });
+
             files_container.innerHTML = "";
             visible_files.forEach(function(el) {
                 files_container.appendChild(el);

@@ -204,12 +204,18 @@ let output_html_index ~sort_by_stats title theme filename files =
       </div>
       <div id="sorting-options">
         <span>sort by:</span>
-        <input type="radio" id="filename-sort" name="sort" value="filename" checked />
-        <label for="filename-sort">filename</label>
-        <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
-        <label for="nb-statements-sort">nb statements</label>
-        <input type="radio" id="coverage-sort" name="sort" value="coverage" />
-        <label for="coverage-sort">coverage</label>
+        <div>
+          <input type="radio" id="filename-sort" name="sort" value="filename" checked />
+          <label for="filename-sort">filename</label>
+        </div>
+        <div>
+          <input type="radio" id="coverage-sort" name="sort" value="coverage" />
+          <label for="coverage-sort">coverage</label>
+        </div>
+        <div>
+          <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
+          <label for="nb-statements-sort">nb statements</label>
+        </div>
       </div>
     </div>
     <div id="files">

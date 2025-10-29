@@ -184,39 +184,7 @@ function handle_settings_clicks()
     if (show_empty_checkbox === null)
         return; // Not on the index page
 
-    var settings_div = document.querySelector("#settings");
-    var show_empty_label = document.querySelector("label[for='show-empty-files-input']");
-    var tree_view_label = document.querySelector("label[for='tree-view-input']");
-
-    var div1 = document.createElement('div');
-    div1.appendChild(show_empty_checkbox.cloneNode(true));
-    div1.appendChild(show_empty_label.cloneNode(true));
-
-    var div2 = document.createElement('div');
-    div2.appendChild(tree_view_checkbox.cloneNode(true));
-    div2.appendChild(tree_view_label.cloneNode(true));
-
-    var group_files_checkbox = document.createElement('input');
-    group_files_checkbox.type = 'checkbox';
-    group_files_checkbox.id = 'group-files-input';
-
-    var group_files_label = document.createElement('label');
-    group_files_label.htmlFor = 'group-files-input';
-    group_files_label.textContent = ' group files';
-
-    var div3 = document.createElement('div');
-    div3.style.marginLeft = '20px';
-    div3.appendChild(group_files_checkbox);
-    div3.appendChild(group_files_label);
-
-    settings_div.innerHTML = '';
-    settings_div.appendChild(div1);
-    settings_div.appendChild(div2);
-    settings_div.appendChild(div3);
-
-    show_empty_checkbox = document.querySelector("#show-empty-files-input");
-    tree_view_checkbox = document.querySelector("#tree-view-input");
-    group_files_checkbox = document.querySelector("#group-files-input");
+    var group_files_checkbox = document.querySelector("#group-files-input");
 
     var files_container = document.querySelector("#files");
     // Clone elements to keep originals pristine

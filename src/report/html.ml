@@ -190,10 +190,18 @@ let output_html_index ~sort_by_stats title theme filename files =
       <h2>%s</h2>
     </div>
     <div id="settings">
-      <input type="checkbox" id="show-empty-files-input" />
-      <label for="show-empty-files-input">show empty files</label>
-      <input type="checkbox" id="tree-view-input" />
-      <label for="tree-view-input">tree view</label>
+      <div>
+        <input type="checkbox" id="show-empty-files-input" />
+        <label for="show-empty-files-input">show empty files</label>
+      </div>
+      <div>
+        <input type="checkbox" id="tree-view-input" />
+        <label for="tree-view-input">tree view</label>
+      </div>
+      <div style="margin-left: 20px">
+        <input type="checkbox" id="group-files-input" />
+        <label for="group-files-input">group files</label>
+      </div>
     </div>
     <div id="files">
 |}

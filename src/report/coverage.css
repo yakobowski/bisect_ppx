@@ -507,6 +507,6 @@ details[open] > summary > .summary-indicator::before {
     color: var(--color);
 }
 
-.hidden {
+#files div.hidden {
     display: none;
 }

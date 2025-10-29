@@ -261,11 +261,8 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
     List.iter (print_line ~tree) files;
 
     write {|    </div>
-|};
-    if tree then
-      write {|    <script src="coverage.js"></script>
-|};
-    write {|  </body>
+    <script src="coverage.js"></script>
+  </body>
 </html>
 |};
 

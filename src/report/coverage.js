@@ -171,20 +171,39 @@ function handle_settings_clicks()
     if (show_empty_checkbox === null)
         return; // Not on the index page
 
+    var settings_div = document.querySelector("#settings");
+    var show_empty_label = document.querySelector("label[for='show-empty-files-input']");
     var tree_view_label = document.querySelector("label[for='tree-view-input']");
-    if (tree_view_label) {
-        var group_files_checkbox = document.createElement('input');
-        group_files_checkbox.type = 'checkbox';
-        group_files_checkbox.id = 'group-files-input';
 
-        var group_files_label = document.createElement('label');
-        group_files_label.htmlFor = 'group-files-input';
-        group_files_label.textContent = ' group files';
+    var div1 = document.createElement('div');
+    div1.appendChild(show_empty_checkbox.cloneNode(true));
+    div1.appendChild(show_empty_label.cloneNode(true));
 
-        tree_view_label.insertAdjacentElement('afterend', group_files_label);
-        tree_view_label.insertAdjacentElement('afterend', group_files_checkbox);
-    }
-    var group_files_checkbox = document.querySelector("#group-files-input");
+    var div2 = document.createElement('div');
+    div2.appendChild(tree_view_checkbox.cloneNode(true));
+    div2.appendChild(tree_view_label.cloneNode(true));
+
+    var group_files_checkbox = document.createElement('input');
+    group_files_checkbox.type = 'checkbox';
+    group_files_checkbox.id = 'group-files-input';
+
+    var group_files_label = document.createElement('label');
+    group_files_label.htmlFor = 'group-files-input';
+    group_files_label.textContent = ' group files';
+
+    var div3 = document.createElement('div');
+    div3.style.marginLeft = '20px';
+    div3.appendChild(group_files_checkbox);
+    div3.appendChild(group_files_label);
+
+    settings_div.innerHTML = '';
+    settings_div.appendChild(div1);
+    settings_div.appendChild(div2);
+    settings_div.appendChild(div3);
+
+    show_empty_checkbox = document.querySelector("#show-empty-files-input");
+    tree_view_checkbox = document.querySelector("#tree-view-input");
+    group_files_checkbox = document.querySelector("#group-files-input");
 
     var files_container = document.querySelector("#files");
     // Clone elements to keep originals pristine
@@ -283,7 +302,7 @@ function handle_settings_clicks()
                         '<span class="meter">' +
                         '<span class="covered" style="width: ' + file_percentage + '%"></span>' +
                         '</span>' +
-                        '<span class="percentage">' + file_percentage + '%% <span class="stats">(' + file_stats.visited + ' / ' + file_stats.total + ')</span></span>' +
+                        '<span class="percentage">' + file_percentage + '% <span class="stats">(' + file_stats.visited + ' / ' + file_stats.total + ')</span></span>' +
                         '<span class="dirname">(files)</span>' +
                         '</div>' +
                         '</summary>' +
@@ -307,7 +326,7 @@ function handle_settings_clicks()
                     '<span class="meter">' +
                     '<span class="covered" style="width: ' + percentage + '%"></span>' +
                     '</span>' +
-                    '<span class="percentage">' + percentage + '%% <span class="stats">(' + node.stats.visited + ' / ' + node.stats.total + ')</span></span>' +
+                    '<span class="percentage">' + percentage + '% <span class="stats">(' + node.stats.visited + ' / ' + node.stats.total + ')</span></span>' +
                     '<span class="dirname">' + name + '/</span>' +
                     '</div>' +
                     '</summary>' +
@@ -333,6 +352,7 @@ function handle_settings_clicks()
 
     tree_view_checkbox.onchange = function () {
         localStorage.setItem("tree-view", tree_view_checkbox.checked);
+        group_files_checkbox.disabled = !tree_view_checkbox.checked;
         render();
     };
 
@@ -348,6 +368,7 @@ function handle_settings_clicks()
     var tree_view = localStorage.getItem("tree-view");
     if (tree_view === null) tree_view = "false";
     tree_view_checkbox.checked = tree_view === "true";
+    group_files_checkbox.disabled = !tree_view_checkbox.checked;
 
     var group_files = localStorage.getItem("group-files");
     if (group_files === null) group_files = "true";

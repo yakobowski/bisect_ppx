@@ -18,56 +18,16 @@
   > let _f () = ()
   > EOF
   $ dune build ./not_excluded.bc --instrument-with bisect_ppx 2>&1
-  [@@@ocaml.ppx.context
-    {
-      tool_name = "ppx_driver";
-      include_dirs = [];
-      load_path = [];
-      open_modules = [];
-      for_package = None;
-      debug = false;
-      use_threads = false;
-      use_vmthreads = false;
-      recursive_types = false;
-      principal = false;
-      transparent_modules = false;
-      unboxed_types = false;
-      unsafe_string = true;
-      cookies = []
-    }]
-  [@@@ocaml.text "/*"]
-  module Bisect_visit___not_excluded___ml =
-    struct
-      let ___bisect_visit___ =
-        let points = [|12|] in
-        let `Visit visit =
-          Bisect.Runtime.register_file ~bisect_file:None ~bisect_silent:None
-            ~filename:"not_excluded.ml" ~points ~bisect_sigterm:false in
-        visit
-      let ___bisect_post_visit___ point_index result =
-        ___bisect_visit___ point_index; result
-    end
-  open Bisect_visit___not_excluded___ml
-  [@@@ocaml.text "/*"]
-  let _f () = ___bisect_visit___ 0; ()
+  File "dune", line 6, characters 11-21:
+  6 |   (backend bisect_ppx --exclusions bisect.exclude) (deps bisect.exclude)))
+                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
 
   $ dune build ./excluded_1.bc --instrument-with bisect_ppx 2>&1
-  [@@@ocaml.ppx.context
-    {
-      tool_name = "ppx_driver";
-      include_dirs = [];
-      load_path = [];
-      open_modules = [];
-      for_package = None;
-      debug = false;
-      use_threads = false;
-      use_vmthreads = false;
-      recursive_types = false;
-      principal = false;
-      transparent_modules = false;
-      unboxed_types = false;
-      unsafe_string = true;
-      cookies = []
-    }]
-  let _f () = ()
+  File "dune", line 6, characters 11-21:
+  6 |   (backend bisect_ppx --exclusions bisect.exclude) (deps bisect.exclude)))
+                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
 

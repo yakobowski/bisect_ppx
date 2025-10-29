@@ -507,6 +507,10 @@ details[open] > summary > .summary-indicator::before {
     color: var(--color);
 }
 
+#sorting-options div {
+    display: block;
+}
+
 #files div.hidden {
     display: none;
 }

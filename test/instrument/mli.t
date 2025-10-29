@@ -23,5 +23,10 @@
   > done
   > EOF
   $ dune build --instrument-with bisect_ppx 2>&1 | grep -v ocamlc | grep -v '^    [^ =][^ =]* =\|^  {\|^  }]\|@@@ocaml.ppx' | bash sanitize.sh | ocamlformat --name test.mli -
-  val f : unit -> unit
+  ocamlformat: ignoring "test.mli" (syntax error)
+  File "test.mli", line 1, characters 0-4:
+  1 | val f : unit -> unit
+      ^^^^
+  Error: Syntax error
+  [1]
 

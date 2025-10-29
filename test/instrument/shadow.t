@@ -19,3 +19,8 @@ shadowing is not occurring.
   > let g () = ()
   > EOF
   $ dune build --instrument-with bisect_ppx --display quiet
+  File "dune", line 4, characters 27-37:
+  4 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]

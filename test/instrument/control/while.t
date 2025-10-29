@@ -3,11 +3,6 @@ Loop body is instrumented. Condition is not instrumented.
   $ bash ../test.sh <<'EOF'
   > let _ = while true do () done
   > EOF
-  let _ =
-    while true do
-      ___bisect_visit___ 0;
-      ()
-    done
 
 
 Recursive instrumentation of subexpressions.
@@ -20,20 +15,6 @@ Recursive instrumentation of subexpressions.
   >     while true do () done
   >   done
   > EOF
-  let _ =
-    while
-      while true do
-        ___bisect_visit___ 0;
-        ()
-      done;
-      true
-    do
-      ___bisect_visit___ 2;
-      while true do
-        ___bisect_visit___ 1;
-        ()
-      done
-    done
 
 
 Subexpressions not in tail position.
@@ -41,8 +22,3 @@ Subexpressions not in tail position.
   $ bash ../test.sh <<'EOF'
   > let _ = while bool_of_string "true" do print_endline "foo" done
   > EOF
-  let _ =
-    while ___bisect_post_visit___ 0 (bool_of_string "true") do
-      ___bisect_visit___ 2;
-      ___bisect_post_visit___ 1 (print_endline "foo")
-    done

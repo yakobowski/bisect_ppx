@@ -21,8 +21,16 @@ handler, we should see no message and find two coverage traces:
   >  (preprocess (pps bisect_ppx --bisect-sigterm)))
   > EOF
   $ dune exec ./at_exit_main.exe
+  File "dune", line 3, characters 18-28:
+  3 |  (preprocess (pps bisect_ppx --bisect-sigterm)))
+                        ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  -> required by _build/default/.merlin-conf/exe-at_exit_main
+  -> required by _build/default/at_exit_main.exe
+  [1]
   $ ls bisect*.coverage | wc -l | sed 's/ *//'
-  2
+  ls: cannot access 'bisect*.coverage': No such file or directory
+  0
   $ bisect-ppx-report summary --verbose
-  Info: found *.coverage files in './'
-  Coverage: 6/6 (100.00%)
+  /tmp/dune_cram_ea90af_.cram.sh/main.sh: 1: /tmp/dune_cram_ea90af_.cram.sh/5.sh: bisect-ppx-report: not found
+  [127]

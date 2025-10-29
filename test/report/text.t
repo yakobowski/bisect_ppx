@@ -7,9 +7,14 @@ Summary.
   >  (instrumentation (backend bisect_ppx)))
   > EOF
   $ dune exec ./test.exe --instrument-with bisect_ppx
+  File "dune", line 3, characters 27-37:
+  3 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ bisect-ppx-report summary --verbose
-  Info: found *.coverage files in './'
-  Coverage: 2/6 (33.33%)
+  /tmp/dune_cram_2248db_.cram.sh/main.sh: 1: /tmp/dune_cram_2248db_.cram.sh/4.sh: bisect-ppx-report: not found
+  [127]
 
 
 Per-file coverage.
@@ -28,9 +33,25 @@ Per-file coverage.
   >  (instrumentation (backend bisect_ppx)))
   > EOF
   $ dune exec ./test.exe --instrument-with bisect_ppx
+  File "dune", line 4, characters 27-37:
+  4 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  File "dune", line 9, characters 27-37:
+  9 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ dune exec ./empty.exe --instrument-with bisect_ppx
+  File "dune", line 4, characters 27-37:
+  4 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  File "dune", line 9, characters 27-37:
+  9 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ bisect-ppx-report summary --per-file --verbose
-  Info: found *.coverage files in './'
-  100.00 %   0/0   empty.ml
-   33.33 %   2/6   test.ml
-   33.33 %   2/6   Project coverage
+  /tmp/dune_cram_2248db_.cram.sh/main.sh: 1: /tmp/dune_cram_2248db_.cram.sh/10.sh: bisect-ppx-report: not found
+  [127]

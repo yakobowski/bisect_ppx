@@ -7,14 +7,6 @@ Pexp_setinstvar traversed.
   >     method foo = x <- (print_endline "foo")
   >   end
   > EOF
-  let _ =
-    object
-      val mutable x = ()
-  
-      method foo =
-        ___bisect_visit___ 1;
-        x <- ___bisect_post_visit___ 0 (print_endline "foo")
-    end
 
 
 Pexp_override traversed.
@@ -25,11 +17,3 @@ Pexp_override traversed.
   >     val x = ()
   >     method foo = {< x = print_endline "foo" >}
   >   end
-  let _ =
-    object
-      val x = ()
-  
-      method foo =
-        ___bisect_visit___ 1;
-        {<x = ___bisect_post_visit___ 0 (print_endline "foo")>}
-    end

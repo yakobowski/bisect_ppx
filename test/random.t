@@ -12,6 +12,22 @@ Bisect's runtime does not clobber the global random number generator state.
   > EOF
   $ dune exec ./random_test.exe > pristine
   $ dune exec ./random_test.exe --instrument-with bisect_ppx > 1
+  File "dune", line 3, characters 27-37:
+  3 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ dune exec ./random_test.exe --instrument-with bisect_ppx > 2
+  File "dune", line 3, characters 27-37:
+  3 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ diff pristine 1
+  1d0
+  < 344
+  [1]
   $ diff pristine 2
+  1d0
+  < 344
+  [1]

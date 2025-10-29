@@ -11,10 +11,10 @@ Bad attributes generate an error message.
   > [@@@coverage invalid]
   > EOF
   $ dune build --instrument-with bisect_ppx --display quiet
-  File "test.ml", line 1, characters 0-21:
-  1 | [@@@coverage invalid]
-      ^^^^^^^^^^^^^^^^^^^^^
-  Error: Bad payload in coverage attribute.
+  File "dune", line 4, characters 27-37:
+  4 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
   [1]
 
 
@@ -41,10 +41,10 @@ constructor) is suppressed. One instance is still displayed for the user's code.
   >   | A _ | B | C -> ()
   > EOF
   $ dune build --instrument-with bisect_ppx --display quiet 2>&1 | sed -e 's/ \[[^]]*\]//g'
-  File "test.ml", line 15, characters 6-7:
-  15 |   | A _ | B | C -> ()
-             ^
-  Error (warning 28): wildcard pattern given as argument to a constant constructor
+  File "dune", line 4, characters 27-37:
+  4 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
 
 
 Missing record labels warning (9) is suppressed from inserted documentation. It
@@ -57,19 +57,7 @@ is still emitted for the user's code.
   >   | {a} | {a} -> a
   > EOF
   $ dune build --instrument-with bisect_ppx --display quiet 2>&1 | sed -e 's/ \[[^]]*\]//g'
-  File "test.ml", line 4, characters 4-7:
-  4 |   | {a} | {a} -> a
-          ^^^
-  Error (warning 9): the following labels are not bound in this record pattern:
-  b
-  Either bind these labels explicitly or add '; _' to the pattern.
-  File "test.ml", line 4, characters 10-13:
-  4 |   | {a} | {a} -> a
-                ^^^
-  Error (warning 9): the following labels are not bound in this record pattern:
-  b
-  Either bind these labels explicitly or add '; _' to the pattern.
-  File "test.ml", line 4, characters 10-13:
-  4 |   | {a} | {a} -> a
-                ^^^
-  Error (warning 12): this sub-pattern is unused.
+  File "dune", line 4, characters 27-37:
+  4 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.

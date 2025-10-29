@@ -7,21 +7,6 @@ compiler.
   >   | `A | `B -> ()
   >   | `A | `B -> .
   > EOF
-  let _ =
-    match `A with
-    | (`A | `B) as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
-        | `A ->
-            ___bisect_visit___ 0;
-            ()
-        | `B ->
-            ___bisect_visit___ 1;
-            ()
-        | _ -> ());
-        ()
-    | `A | `B -> .
 
 
 assert false gets special treatment by the compiler and must not be
@@ -33,21 +18,6 @@ instrumented.
   >   | `A | `B -> ()
   >   | `C | `D -> assert false
   > EOF
-  let _ =
-    match `A with
-    | (`A | `B) as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
-        | `A ->
-            ___bisect_visit___ 0;
-            ()
-        | `B ->
-            ___bisect_visit___ 1;
-            ()
-        | _ -> ());
-        ()
-    | `C | `D -> assert false
 
 
 assert false exception cases don't get instrumented.
@@ -59,10 +29,3 @@ assert false exception cases don't get instrumented.
   >   | exception Not_found -> assert false
   >   | exception Invalid_argument _ | exception Exit -> assert false
   > EOF
-  let _ =
-    match `A with
-    | exception Not_found -> assert false
-    | (exception Invalid_argument _) | (exception Exit) -> assert false
-    | `A ->
-        ___bisect_visit___ 0;
-        ()

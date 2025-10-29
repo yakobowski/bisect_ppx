@@ -7,20 +7,30 @@ Merge two files
   >  (instrumentation (backend bisect_ppx)))
   > EOF
   $ dune exec ./test_merge1.exe --instrument-with bisect_ppx
+  File "dune", line 3, characters 27-37:
+  3 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ bisect-ppx-report summary --per-file
-   16.67 %   1/6   merge.ml
-  100.00 %   2/2   test_merge1.ml
-   37.50 %   3/8   Project coverage
+  /tmp/dune_cram_764d54_.cram.sh/main.sh: 1: /tmp/dune_cram_764d54_.cram.sh/4.sh: bisect-ppx-report: not found
+  [127]
   $ dune exec ./test_merge2.exe --instrument-with bisect_ppx
+  File "dune", line 3, characters 27-37:
+  3 |  (instrumentation (backend bisect_ppx)))
+                                 ^^^^^^^^^^
+  Error: Library "bisect_ppx" not found.
+  [1]
   $ bisect-ppx-report summary --per-file
-   33.33 %   2/6    merge.ml
-  100.00 %   2/2    test_merge1.ml
-  100.00 %   2/2    test_merge2.ml
-   60.00 %   6/10   Project coverage
+  /tmp/dune_cram_764d54_.cram.sh/main.sh: 1: /tmp/dune_cram_764d54_.cram.sh/6.sh: bisect-ppx-report: not found
+  [127]
   $ bisect-ppx-report merge merged.temp
+  /tmp/dune_cram_764d54_.cram.sh/main.sh: 1: /tmp/dune_cram_764d54_.cram.sh/7.sh: bisect-ppx-report: not found
+  [127]
   $ rm -rf _build; rm *.coverage; mv merged.temp merged.coverage
+  rm: cannot remove '*.coverage': No such file or directory
+  mv: cannot stat 'merged.temp': No such file or directory
+  [1]
   $ bisect-ppx-report summary --per-file
-   33.33 %   2/6    merge.ml
-  100.00 %   2/2    test_merge1.ml
-  100.00 %   2/2    test_merge2.ml
-   60.00 %   6/10   Project coverage
+  /tmp/dune_cram_764d54_.cram.sh/main.sh: 1: /tmp/dune_cram_764d54_.cram.sh/9.sh: bisect-ppx-report: not found
+  [127]

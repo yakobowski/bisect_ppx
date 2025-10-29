@@ -404,11 +404,11 @@ function handle_settings_clicks()
     };
 
     var show_empty_files = localStorage.getItem("show-empty-files");
-    if (show_empty_files === null) show_empty_files = "true";
+    if (show_empty_files === null) show_empty_files = "false";
     show_empty_checkbox.checked = show_empty_files === "true";
 
     var tree_view = localStorage.getItem("tree-view");
-    if (tree_view === null) tree_view = "false";
+    if (tree_view === null) tree_view = "true";
     tree_view_checkbox.checked = tree_view === "true";
     group_files_checkbox.disabled = !tree_view_checkbox.checked;
 

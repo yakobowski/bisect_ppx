@@ -28,8 +28,12 @@
         <h1>Coverage report</h1>
         <h2>33.33%</h2>
       </div>
+      <div id="settings">
+        <input type="checkbox" id="show-empty-files-input" />
+        <label for="show-empty-files-input">show empty files</label>
+      </div>
       <div id="files">
-        <div>
+        <div data-total="6">
           <span class="meter">
             <span class="covered" style="width: 33%"></span>
           </span>
@@ -39,6 +43,7 @@
           </a>
         </div>
       </div>
+      <script src="coverage.js"></script>
     </body>
   </html>
   $ cat _coverage/test.ml.html

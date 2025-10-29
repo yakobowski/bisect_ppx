@@ -353,8 +353,7 @@ function handle_settings_clicks()
                     open_attr = 'open';
                 } else {
                     var has_subdirs = sorted_dirs.length > 0;
-                    var has_files = node.files.length > 0;
-                    if(has_subdirs || has_files) {
+                    if(has_subdirs) {
                         open_attr = 'open'; // Default open
                     } else {
                         open_attr = '';

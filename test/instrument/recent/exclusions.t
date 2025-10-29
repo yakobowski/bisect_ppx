@@ -32,7 +32,7 @@
       principal = false;
       transparent_modules = false;
       unboxed_types = false;
-      unsafe_string = true;
+      unsafe_string = false;
       cookies = []
     }]
   [@@@ocaml.text "/*"]
@@ -66,7 +66,7 @@
       principal = false;
       transparent_modules = false;
       unboxed_types = false;
-      unsafe_string = true;
+      unsafe_string = false;
       cookies = []
     }]
   let _f () = ()

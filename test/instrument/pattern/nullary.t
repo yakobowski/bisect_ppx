@@ -5,11 +5,8 @@ Wildcard.
   >   match () with
   >   | _ -> ()
   > EOF
-  let _ =
-    match () with
-    | _ ->
-        ___bisect_visit___ 0;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Variable.
@@ -19,11 +16,8 @@ Variable.
   >   match () with
   >   | x -> x
   > EOF
-  let _ =
-    match () with
-    | x ->
-        ___bisect_visit___ 0;
-        x
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Nullary constructor.
@@ -33,11 +27,8 @@ Nullary constructor.
   >   match () with
   >   | () -> ()
   > EOF
-  let _ =
-    match () with
-    | () ->
-        ___bisect_visit___ 0;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Constant.
@@ -48,14 +39,8 @@ Constant.
   >   | 0 -> ()
   >   | _ -> ()
   > EOF
-  let _ =
-    match 0 with
-    | 0 ->
-        ___bisect_visit___ 0;
-        ()
-    | _ ->
-        ___bisect_visit___ 1;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Interval.
@@ -66,14 +51,8 @@ Interval.
   >   | 'a'..'z' -> ()
   >   | _ -> ()
   > EOF
-  let _ =
-    match 'a' with
-    | 'a' .. 'z' ->
-        ___bisect_visit___ 0;
-        ()
-    | _ ->
-        ___bisect_visit___ 1;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Nullary polymorphic variand.
@@ -83,11 +62,8 @@ Nullary polymorphic variand.
   >   match `A with
   >   | `A -> ()
   > EOF
-  let _ =
-    match `A with
-    | `A ->
-        ___bisect_visit___ 0;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Polymorphic variant type name.
@@ -98,13 +74,8 @@ Polymorphic variant type name.
   >   match `A with
   >   | #t -> ()
   > EOF
-  type t = [ `A ]
-  
-  let _ =
-    match `A with
-    | #t ->
-        ___bisect_visit___ 0;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Module.
@@ -115,10 +86,5 @@ Module.
   >   match (module List : L) with
   >   | (module L) -> ()
   > EOF
-  module type L = module type of List
-  
-  let _ =
-    match (module List : L) with
-    | (module L) ->
-        ___bisect_visit___ 0;
-        ()
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]

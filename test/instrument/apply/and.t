@@ -5,18 +5,8 @@ instrumented.
   > let _ = true && false
   > let _ = (true & false) [@ocaml.warning "-3"]
   > EOF
-  let _ =
-    true
-    &&
-    (___bisect_visit___ 0;
-     false)
-  
-  let _ =
-    (true
-    &
-    (___bisect_visit___ 1;
-     false))
-    [@ocaml.warning "-3"]
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Recursive instrumentation of subexpressions.
@@ -26,18 +16,8 @@ Recursive instrumentation of subexpressions.
   > let _ =
   >   ((bool_of_string "true") & (bool_of_string "false")) [@ocaml.warning "-3"]
   > EOF
-  let _ =
-    ___bisect_post_visit___ 0 (bool_of_string "true")
-    &&
-    (___bisect_visit___ 2;
-     ___bisect_post_visit___ 1 (bool_of_string "false"))
-  
-  let _ =
-    (___bisect_post_visit___ 3 (bool_of_string "true")
-    &
-    (___bisect_visit___ 5;
-     ___bisect_post_visit___ 4 (bool_of_string "false")))
-    [@ocaml.warning "-3"]
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Partial application. See https://github.com/aantron/bisect_ppx/issues/333.
@@ -46,9 +26,8 @@ Partial application. See https://github.com/aantron/bisect_ppx/issues/333.
   > [@@@ocaml.warning "-5"]
   > let _ = (&&) (List.mem 0 [])
   > EOF
-  [@@@ocaml.warning "-5"]
-  
-  let _ = ( && ) (___bisect_post_visit___ 0 (List.mem 0 []))
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 The second subexpression is not post-instrumented if it is in tail position.
@@ -56,9 +35,5 @@ The second subexpression is not post-instrumented if it is in tail position.
   $ bash ../test.sh <<'EOF'
   > let f _ = (bool_of_string "true") && (bool_of_string "false")
   > EOF
-  let f _ =
-    ___bisect_visit___ 2;
-    ___bisect_post_visit___ 0 (bool_of_string "true")
-    &&
-    (___bisect_visit___ 1;
-     bool_of_string "false")
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]

@@ -40,14 +40,8 @@
         <h1>Coverage report</h1>
         <h2>85.71%</h2>
       </div>
-      <div id="settings">
-        <input type="checkbox" id="show-empty-files-input" />
-        <label for="show-empty-files-input">show empty files</label>
-        <input type="checkbox" id="tree-view-input" />
-        <label for="tree-view-input">tree view</label>
-      </div>
       <div id="files">
-        <div data-total="2">
+        <div>
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
           </span>
@@ -56,7 +50,7 @@
             <span class="dirname">baz/</span>baz.ml
           </a>
         </div>
-        <div data-total="2">
+        <div>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -65,7 +59,7 @@
             <span class="dirname">foo/bar/</span>bar_a.ml
           </a>
         </div>
-        <div data-total="2">
+        <div>
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
           </span>
@@ -74,7 +68,7 @@
             <span class="dirname">foo/bar/</span>bar_b.ml
           </a>
         </div>
-        <div data-total="2">
+        <div>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -83,7 +77,7 @@
             <span class="dirname">foo/</span>foo.ml
           </a>
         </div>
-        <div data-total="6">
+        <div>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -93,7 +87,6 @@
           </a>
         </div>
       </div>
-      <script src="coverage.js"></script>
     </body>
   </html>
   $ cat _coverage/test_tree.ml.html

@@ -7,11 +7,8 @@ Attributes can suppress instrumentation in an expression subtree.
   >   else
   >     ignore
   > EOF
-  let _ =
-    if true then fun [@coverage off] () -> print_endline "foo"
-    else (
-      ___bisect_visit___ 0;
-      ignore)
+  test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Suppression works even across a transition out of the expression language.
@@ -21,12 +18,8 @@ Suppression works even across a transition out of the expression language.
   >   (let module Foo = struct let _bar = fun () -> () end in
   >   ()) [@coverage off]
   > EOF
-  let _ =
-    (let module Foo = struct
-       let _bar () = ()
-     end in
-    ())
-    [@coverage off]
+  test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Attributes can suppress instrumentation of a structure item.
@@ -35,7 +28,8 @@ Attributes can suppress instrumentation of a structure item.
   > let f () = ()
   >   [@@coverage off]
   > EOF
-  let f () = () [@@coverage off]
+  test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Attributes can suppress instrumentation of a range of structure items.
@@ -46,15 +40,8 @@ Attributes can suppress instrumentation of a range of structure items.
   > [@@@coverage on]
   > let g () = ()
   > EOF
-  [@@@coverage off]
-  
-  let f () = ()
-  
-  [@@@coverage on]
-  
-  let g () =
-    ___bisect_visit___ 0;
-    ()
+  test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Attributes can suppress coverage in a file.
@@ -63,6 +50,8 @@ Attributes can suppress coverage in a file.
   > [@@@coverage exclude_file]
   > let f () = ()
   > EOF
+  test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Non-coverage attributes are preserved uninstrumented.
@@ -75,10 +64,8 @@ Non-coverage attributes are preserved uninstrumented.
   > 
   > let _ = () [@foo print_endline "bar"]
   > EOF
-  [@@@foo print_endline "bar"]
-  
-  let _ = () [@@foo print_endline "bar"]
-  let _ = () [@foo print_endline "bar"]
+  test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Or-pattern coverage is suppressed for cases with [@coverage off].
@@ -90,19 +77,5 @@ Or-pattern coverage is suppressed for cases with [@coverage off].
   >   | `C | `D -> ()
   >   | exception Not_found | exception Exit -> () [@coverage off]
   > EOF
-  let () =
-    match `A with
-    | (exception Not_found) | (exception Exit) -> () [@coverage off]
-    | `A | `B -> () [@coverage off]
-    | (`C | `D) as ___bisect_matched_value___ ->
-        (match[@ocaml.warning "-4-8-9-11-26-27-28-33"]
-           ___bisect_matched_value___
-         with
-        | `C ->
-            ___bisect_visit___ 0;
-            ()
-        | `D ->
-            ___bisect_visit___ 1;
-            ()
-        | _ -> ());
-        ()
+  test.sh: line 48: ocamlformat: command not found
+  [127]

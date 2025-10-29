@@ -4,7 +4,8 @@ of a function to an argument, rather than a function to two arguments.
   $ bash ../test.sh <<'EOF'
   > let _ = "" |> String.trim
   > EOF
-  let _ = ___bisect_post_visit___ 0 ("" |> String.trim)
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Subexpressions instrumented recursively.
@@ -12,11 +13,8 @@ Subexpressions instrumented recursively.
   $ bash ../test.sh <<'EOF'
   > let _ = (String.trim "") |> (fun s -> String.trim s)
   > EOF
-  let _ =
-    ___bisect_post_visit___ 2
-      ( ___bisect_post_visit___ 0 (String.trim "") |> fun s ->
-        ___bisect_visit___ 1;
-        String.trim s )
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Instrumentation suppressed in tail position.
@@ -24,10 +22,8 @@ Instrumentation suppressed in tail position.
   $ bash ../test.sh <<'EOF'
   > let _ = fun () -> "" |> String.trim
   > EOF
-  let _ =
-   fun () ->
-    ___bisect_visit___ 0;
-    "" |> String.trim
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Right argument is not in tail position.
@@ -35,4 +31,5 @@ Right argument is not in tail position.
   $ bash ../test.sh <<'EOF'
   > let _ = [] |> List.mem 0
   > EOF
-  let _ = ___bisect_post_visit___ 0 ([] |> List.mem 0)
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]

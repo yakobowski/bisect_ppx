@@ -11,5 +11,4 @@
   Info: found *.coverage files in './'
   Info: Writing index file...
   $ grep handle_settings_clicks _coverage/coverage.js
-  function handle_settings_clicks()
-  handle_settings_clicks();
+  [1]

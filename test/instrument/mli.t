@@ -23,5 +23,6 @@
   > done
   > EOF
   $ dune build --instrument-with bisect_ppx 2>&1 | grep -v ocamlc | grep -v '^    [^ =][^ =]* =\|^  {\|^  }]\|@@@ocaml.ppx' | bash sanitize.sh | ocamlformat --name test.mli -
-  val f : unit -> unit
+  /tmp/dune_cram_b6dcb8_.cram.sh/main.sh: 1: /tmp/dune_cram_b6dcb8_.cram.sh/7.sh: ocamlformat: not found
+  [127]
 

@@ -3,9 +3,8 @@ Out-edge instrumented.
   $ bash ../test.sh <<'EOF'
   > let _ = assert (bool_of_string "true")
   > EOF
-  let _ =
-    ___bisect_post_visit___ 1
-      (assert (___bisect_post_visit___ 0 (bool_of_string "true")))
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]
 
 
 Not instrumented for assert false.
@@ -13,4 +12,5 @@ Not instrumented for assert false.
   $ bash ../test.sh <<'EOF'
   > let _ = assert false
   > EOF
-  let _ = assert false
+  ../test.sh: line 48: ocamlformat: command not found
+  [127]

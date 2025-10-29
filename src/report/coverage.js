@@ -171,6 +171,21 @@ function handle_settings_clicks()
     if (show_empty_checkbox === null)
         return; // Not on the index page
 
+    var tree_view_label = document.querySelector("label[for='tree-view-input']");
+    if (tree_view_label) {
+        var group_files_checkbox = document.createElement('input');
+        group_files_checkbox.type = 'checkbox';
+        group_files_checkbox.id = 'group-files-input';
+
+        var group_files_label = document.createElement('label');
+        group_files_label.htmlFor = 'group-files-input';
+        group_files_label.textContent = ' group files';
+
+        tree_view_label.insertAdjacentElement('afterend', group_files_label);
+        tree_view_label.insertAdjacentElement('afterend', group_files_checkbox);
+    }
+    var group_files_checkbox = document.querySelector("#group-files-input");
+
     var files_container = document.querySelector("#files");
     // Clone elements to keep originals pristine
     var all_files = Array.prototype.slice.call(files_container.querySelectorAll("div[data-total]")).map(function (el) {
@@ -180,6 +195,7 @@ function handle_settings_clicks()
     function render() {
         var show_empty = show_empty_checkbox.checked;
         var use_tree_view = tree_view_checkbox.checked;
+        var group_files = group_files_checkbox.checked;
 
         var visible_files = all_files.filter(function(el) {
             return show_empty || el.dataset.total !== '0';
@@ -245,6 +261,36 @@ function handle_settings_clicks()
                     file_html += new_file_element.outerHTML;
                 });
 
+                if (group_files && dir_html !== "" && file_html !== "") {
+                    var file_stats = { visited: 0, total: 0 };
+                    node.files.forEach(function(file) {
+                        var stats_span = file.element.querySelector("span.stats");
+                        var stats_text = stats_span.textContent;
+                        var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
+                        file_stats.visited += parseInt(matches[1]);
+                        file_stats.total += parseInt(matches[2]);
+                    });
+
+                    var file_percentage = 0;
+                    if (file_stats.total > 0) {
+                        file_percentage = Math.floor(100 * file_stats.visited / file_stats.total);
+                    }
+
+                    file_html = '<details>' +
+                        '<summary>' +
+                        '<span class="summary-indicator"></span>' +
+                        '<div class="directory">' +
+                        '<span class="meter">' +
+                        '<span class="covered" style="width: ' + file_percentage + '%"></span>' +
+                        '</span>' +
+                        '<span class="percentage">' + file_percentage + '%% <span class="stats">(' + file_stats.visited + ' / ' + file_stats.total + ')</span></span>' +
+                        '<span class="dirname">(files)</span>' +
+                        '</div>' +
+                        '</summary>' +
+                        file_html +
+                        '</details>';
+                }
+
                 if (name === null) { // Root
                     return dir_html + file_html;
                 }
@@ -290,6 +336,11 @@ function handle_settings_clicks()
         render();
     };
 
+    group_files_checkbox.onchange = function () {
+        localStorage.setItem("group-files", group_files_checkbox.checked);
+        render();
+    };
+
     var show_empty_files = localStorage.getItem("show-empty-files");
     if (show_empty_files === null) show_empty_files = "true";
     show_empty_checkbox.checked = show_empty_files === "true";
@@ -297,6 +348,10 @@ function handle_settings_clicks()
     var tree_view = localStorage.getItem("tree-view");
     if (tree_view === null) tree_view = "false";
     tree_view_checkbox.checked = tree_view === "true";
+
+    var group_files = localStorage.getItem("group-files");
+    if (group_files === null) group_files = "true";
+    group_files_checkbox.checked = group_files === "true";
 
     render();
 };

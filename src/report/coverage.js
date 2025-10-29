@@ -185,6 +185,7 @@ function handle_settings_clicks()
         return; // Not on the index page
 
     var group_files_checkbox = document.querySelector("#group-files-input");
+    var sorting_radios = document.querySelectorAll("#sorting-options input");
 
     var files_container = document.querySelector("#files");
     // Clone elements to keep originals pristine
@@ -196,6 +197,7 @@ function handle_settings_clicks()
         var show_empty = show_empty_checkbox.checked;
         var use_tree_view = tree_view_checkbox.checked;
         var group_files = group_files_checkbox.checked;
+        var sorting = document.querySelector("#sorting-options input:checked").value;
 
         var visible_files = all_files.filter(function(el) {
             return show_empty || el.dataset.total !== '0';
@@ -234,14 +236,58 @@ function handle_settings_clicks()
                 }
 
                 var filename = path_components.length > 0 ? path_components[path_components.length - 1] : basename;
-                current_level.files.push({ element: file_element, name: filename });
+                current_level.files.push({
+                    element: file_element,
+                    name: filename,
+                    statements: parseInt(file_element.dataset.statements),
+                    coverage: parseFloat(file_element.dataset.coverage)
+                });
             });
 
             var collapsible_state = JSON.parse(localStorage.getItem("bisect_ppx_collapsible_state") || "{}");
 
             function render_tree_node(node, name, path) {
                 var dir_html = "";
-                var sorted_dirs = Object.keys(node.dirs).sort();
+
+                var get_sort_key = function(item, type) {
+                    switch (sorting) {
+                        case 'nb-statements':
+                            if (type === 'file') {
+                                return -item.statements;
+                            } else { // directory
+                                return -item.stats.total;
+                            }
+                        case 'coverage':
+                            if (type === 'file') {
+                                return -item.coverage;
+                            } else { // directory
+                                var percentage = 0;
+                                if (item.stats.total > 0) {
+                                    percentage = 100 * item.stats.visited / item.stats.total;
+                                }
+                                return -percentage;
+                            }
+                        case 'filename':
+                        default:
+                            if (type === 'file') {
+                                return item.name.toLowerCase();
+                            } else { // directory name
+                                return item.toLowerCase();
+                            }
+                    }
+                }
+
+                var sorted_dirs = Object.keys(node.dirs).sort(function(a, b) {
+                    if (sorting === 'filename') {
+                        return a.localeCompare(b);
+                    }
+                    var val_a = get_sort_key(node.dirs[a], 'directory');
+                    var val_b = get_sort_key(node.dirs[b], 'directory');
+                    if (val_a < val_b) return -1;
+                    if (val_a > val_b) return 1;
+                    return a.localeCompare(b); // secondary sort by name
+                });
+
                 var current_path = path ? path + '/' + name : name;
 
                 sorted_dirs.forEach(function(dir_name) {
@@ -250,7 +296,14 @@ function handle_settings_clicks()
 
                 var file_html = "";
                 node.files.sort(function(a, b) {
-                    return a.name.localeCompare(b.name);
+                    if (sorting === 'filename') {
+                        return a.name.localeCompare(b.name);
+                    }
+                    var val_a = get_sort_key(a, 'file');
+                    var val_b = get_sort_key(b, 'file');
+                    if (val_a < val_b) return -1;
+                    if (val_a > val_b) return 1;
+                    return a.name.localeCompare(b.name); // secondary sort by name
                 }).forEach(function(file) {
                     var new_file_element = file.element.cloneNode(true);
                     var link = new_file_element.querySelector("a");
@@ -370,6 +423,13 @@ function handle_settings_clicks()
         render();
     };
 
+    sorting_radios.forEach(function (radio) {
+        radio.onchange = function () {
+            localStorage.setItem("sorting", this.value);
+            render();
+        };
+    });
+
     var show_empty_files = localStorage.getItem("show-empty-files");
     if (show_empty_files === null) show_empty_files = "false";
     show_empty_checkbox.checked = show_empty_files === "true";
@@ -382,6 +442,10 @@ function handle_settings_clicks()
     var group_files = localStorage.getItem("group-files");
     if (group_files === null) group_files = "true";
     group_files_checkbox.checked = group_files === "true";
+
+    var sorting = localStorage.getItem("sorting");
+    if (sorting === null) sorting = "filename";
+    document.querySelector("#" + sorting + "-sort").checked = true;
 
     render();
 };

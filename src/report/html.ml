@@ -202,6 +202,15 @@ let output_html_index ~sort_by_stats title theme filename files =
         <input type="checkbox" id="group-files-input" />
         <label for="group-files-input">group files</label>
       </div>
+      <div id="sorting-options">
+        <span>sort by:</span>
+        <input type="radio" id="filename-sort" name="sort" value="filename" checked />
+        <label for="filename-sort">filename</label>
+        <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
+        <label for="nb-statements-sort">nb statements</label>
+        <input type="radio" id="coverage-sort" name="sort" value="coverage" />
+        <label for="coverage-sort">coverage</label>
+      </div>
     </div>
     <div id="files">
 |}
@@ -225,9 +234,10 @@ let output_html_index ~sort_by_stats title theme filename files =
       in
       function
       | File (name, html_file, ((_, total) as stats)) ->
-         write {|      <div data-total="%d">
+         let p = percentage stats in
+         write {|      <div data-total="%d" data-statements="%d" data-coverage="%.2f">
 |}
-           total;
+           total total p;
          write_meter stats ;
          let dirname, basename = split_filename name in
          let relative_html_file =

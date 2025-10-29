@@ -163,34 +163,142 @@ function handle_collapsible_click()
 
 handle_collapsible_click();
 
-function handle_show_empty_files_clicks()
+function handle_settings_clicks()
 {
-    var checkbox = document.querySelector("#show-empty-files-input");
-    if (checkbox === null)
-        return;
+    var show_empty_checkbox = document.querySelector("#show-empty-files-input");
+    var tree_view_checkbox = document.querySelector("#tree-view-input");
 
-    var empty_files = document.querySelectorAll("div[data-total='0']");
+    if (show_empty_checkbox === null)
+        return; // Not on the index page
 
-    function set_hidden(hidden) {
-        for (var i = 0; i < empty_files.length; i++) {
-            if (hidden)
-                empty_files[i].classList.add("hidden");
-            else
-                empty_files[i].classList.remove("hidden");
+    var files_container = document.querySelector("#files");
+    // Clone elements to keep originals pristine
+    var all_files = Array.prototype.slice.call(files_container.querySelectorAll("div[data-total]")).map(function (el) {
+        return el.cloneNode(true);
+    });
+
+    function render() {
+        var show_empty = show_empty_checkbox.checked;
+        var use_tree_view = tree_view_checkbox.checked;
+
+        var visible_files = all_files.filter(function(el) {
+            return show_empty || el.dataset.total !== '0';
+        });
+
+        if (use_tree_view) {
+            var tree = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
+
+            visible_files.forEach(function(file_element) {
+                var link = file_element.querySelector("a");
+                var dirname_span = link.querySelector("span.dirname");
+                var dirname = dirname_span ? dirname_span.textContent : "";
+                var basename = link.lastChild.textContent;
+                var path = dirname + basename;
+
+                var stats_span = file_element.querySelector("span.stats");
+                var stats_text = stats_span.textContent;
+                var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
+                var visited = parseInt(matches[1]);
+                var total = parseInt(matches[2]);
+
+                var path_components = path.split('/').filter(function(c) { return c.length > 0; });
+
+                var current_level = tree;
+                tree.stats.visited += visited;
+                tree.stats.total += total;
+
+                for (var j = 0; j < path_components.length - 1; j++) {
+                    var dir = path_components[j];
+                    if (!current_level.dirs[dir]) {
+                        current_level.dirs[dir] = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
+                    }
+                    current_level = current_level.dirs[dir];
+                    current_level.stats.visited += visited;
+                    current_level.stats.total += total;
+                }
+
+                var filename = path_components.length > 0 ? path_components[path_components.length - 1] : basename;
+                current_level.files.push({ element: file_element, name: filename });
+            });
+
+            function render_tree_node(node, name) {
+                var dir_html = "";
+                var sorted_dirs = Object.keys(node.dirs).sort();
+                sorted_dirs.forEach(function(dir_name) {
+                    dir_html += render_tree_node(node.dirs[dir_name], dir_name);
+                });
+
+                var file_html = "";
+                node.files.sort(function(a, b) {
+                    return a.name.localeCompare(b.name);
+                }).forEach(function(file) {
+                    var new_file_element = file.element.cloneNode(true);
+                    var link = new_file_element.querySelector("a");
+                    var dirname_span = link.querySelector("span.dirname");
+                    if (dirname_span) {
+                        dirname_span.textContent = "";
+                    }
+
+                    var indicator_html = '<span class="summary-indicator"></span>';
+                    new_file_element.insertAdjacentHTML('afterbegin', indicator_html);
+
+                    file_html += new_file_element.outerHTML;
+                });
+
+                if (name === null) { // Root
+                    return dir_html + file_html;
+                }
+
+                var percentage = 0;
+                if (node.stats.total > 0) {
+                    percentage = Math.floor(100 * node.stats.visited / node.stats.total);
+                }
+
+                return '<details open="">' +
+                    '<summary>' +
+                    '<span class="summary-indicator"></span>' +
+                    '<div class="directory">' +
+                    '<span class="meter">' +
+                    '<span class="covered" style="width: ' + percentage + '%"></span>' +
+                    '</span>' +
+                    '<span class="percentage">' + percentage + '%% <span class="stats">(' + node.stats.visited + ' / ' + node.stats.total + ')</span></span>' +
+                    '<span class="dirname">' + name + '/</span>' +
+                    '</div>' +
+                    '</summary>' +
+                    dir_html + file_html +
+                    '</details>';
+            }
+
+            files_container.innerHTML = render_tree_node(tree, null);
+
+        } else { // flat view
+            files_container.innerHTML = "";
+            visible_files.forEach(function(el) {
+                files_container.appendChild(el);
+            });
         }
+        handle_collapsible_click();
     }
 
-    checkbox.onchange = function () {
-        set_hidden(!checkbox.checked);
-        localStorage.setItem("show-empty-files", checkbox.checked);
+    show_empty_checkbox.onchange = function () {
+        localStorage.setItem("show-empty-files", show_empty_checkbox.checked);
+        render();
+    };
+
+    tree_view_checkbox.onchange = function () {
+        localStorage.setItem("tree-view", tree_view_checkbox.checked);
+        render();
     };
 
     var show_empty_files = localStorage.getItem("show-empty-files");
-    if (show_empty_files === null)
-        show_empty_files = "true";
+    if (show_empty_files === null) show_empty_files = "true";
+    show_empty_checkbox.checked = show_empty_files === "true";
 
-    checkbox.checked = show_empty_files === "true";
-    set_hidden(!checkbox.checked);
+    var tree_view = localStorage.getItem("tree-view");
+    if (tree_view === null) tree_view = "false";
+    tree_view_checkbox.checked = tree_view === "true";
+
+    render();
 };
 
-handle_show_empty_files_clicks();
+handle_settings_clicks();

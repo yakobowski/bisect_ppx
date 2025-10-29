@@ -7,7 +7,7 @@
   >   (instrumentation (backend bisect_ppx)))
   > EOF
   $ dune exec ./test_tree.exe --instrument-with bisect_ppx
-  $ bisect-ppx-report html --tree --verbose
+  $ bisect-ppx-report html --verbose
   Info: found *.coverage files in './'
   Info: Writing index file...
   $ ls _coverage | sort
@@ -40,24 +40,8 @@
         <h1>Coverage report</h1>
         <h2>85.71%</h2>
       </div>
-      <div id="settings">
-        <input type="checkbox" id="show-empty-files-input" />
-        <label for="show-empty-files-input">show empty files</label>
-      </div>
       <div id="files">
-        <details open="">
-          <summary>
-          <span class="summary-indicator"></span>
-          <div class="directory">
-          <span class="meter">
-            <span class="covered" style="width: 50%"></span>
-          </span>
-          <span class="percentage">50% <span class="stats">(1 / 2)</span></span>
-          <span class="dirname">baz/</span>
-          </div>
-          </summary>
-        <div data-total="2">
-          <span class="summary-indicator"></span>
+        <div>
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
           </span>
@@ -66,31 +50,7 @@
             <span class="dirname">baz/</span>baz.ml
           </a>
         </div>
-        </details>
-        <details open="">
-          <summary>
-          <span class="summary-indicator"></span>
-          <div class="directory">
-          <span class="meter">
-            <span class="covered" style="width: 83%"></span>
-          </span>
-          <span class="percentage">83% <span class="stats">(5 / 6)</span></span>
-          <span class="dirname">foo/</span>
-          </div>
-          </summary>
-        <details open="">
-          <summary>
-          <span class="summary-indicator"></span>
-          <div class="directory">
-          <span class="meter">
-            <span class="covered" style="width: 75%"></span>
-          </span>
-          <span class="percentage">75% <span class="stats">(3 / 4)</span></span>
-          <span class="dirname">foo/bar/</span>
-          </div>
-          </summary>
-        <div data-total="2">
-          <span class="summary-indicator"></span>
+        <div>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -99,8 +59,7 @@
             <span class="dirname">foo/bar/</span>bar_a.ml
           </a>
         </div>
-        <div data-total="2">
-          <span class="summary-indicator"></span>
+        <div>
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
           </span>
@@ -109,9 +68,7 @@
             <span class="dirname">foo/bar/</span>bar_b.ml
           </a>
         </div>
-        </details>
-        <div data-total="2">
-          <span class="summary-indicator"></span>
+        <div>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -120,9 +77,7 @@
             <span class="dirname">foo/</span>foo.ml
           </a>
         </div>
-        </details>
-        <div data-total="6">
-          <span class="summary-indicator"></span>
+        <div>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -132,7 +87,6 @@
           </a>
         </div>
       </div>
-      <script src="coverage.js"></script>
     </body>
   </html>
   $ cat _coverage/test_tree.ml.html

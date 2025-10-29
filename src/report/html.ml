@@ -60,7 +60,7 @@ struct
     |> List.concat
 end
 
-let output_html_index ~tree ~sort_by_stats title theme filename files =
+let output_html_index ~sort_by_stats title theme filename files =
   Util.info "Writing index file...";
 
   let add_stats (visited, total) (visited', total') =
@@ -168,11 +168,10 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
     let (files, stats) = collate files in
 
     let files =
-      match sort_by_stats, tree with
-      | false, _ -> files
-      | true, false ->
+      if sort_by_stats then
         files |> Index_element.flatten |> Index_element.sort_by_stats
-      | true, true -> files |> Index_element.sort_by_stats
+      else
+        files
     in
 
     let overall_coverage =
@@ -193,6 +192,8 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
     <div id="settings">
       <input type="checkbox" id="show-empty-files-input" />
       <label for="show-empty-files-input">show empty files</label>
+      <input type="checkbox" id="tree-view-input" />
+      <label for="tree-view-input">tree view</label>
     </div>
     <div id="files">
 |}
@@ -202,7 +203,7 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
       title
       overall_coverage;
 
-    let rec print_line ~tree =
+    let print_line =
       let write_meter ((visited, total) as stats) =
         let percentage = Printf.sprintf "%.00f" (floor (percentage stats)) in
         write {|        <span class="meter">
@@ -219,9 +220,6 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
          write {|      <div data-total="%d">
 |}
            total;
-         if tree then
-           write {|        <span class="summary-indicator"></span>
-|};
          write_meter stats ;
          let dirname, basename = split_filename name in
          let relative_html_file =
@@ -239,26 +237,11 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
 |}
            relative_html_file
            dirname basename;
-      | Directory (name, files, stats) when tree ->
-         write {|      <details open="">
-        <summary>
-        <span class="summary-indicator"></span>
-        <div class="directory">
-|};
-         write_meter stats ;
-         write {|        <span class="dirname">%s</span>
-        </div>
-        </summary>
-|}
-           name;
-         List.iter (print_line ~tree) files;
-         write {|      </details>
-|} ;
-      | Directory (_, files, _) ->
-         List.iter (print_line ~tree) files;
+      | Directory (_, _, _) ->
+         ()
     in
 
-    List.iter (print_line ~tree) files;
+    files |> Index_element.flatten |> List.iter print_line;
 
     write {|    </div>
     <script src="coverage.js"></script>
@@ -540,7 +523,7 @@ let output_string_to_separate_file content filename =
 
 let output
     ~to_directory ~title ~tab_size ~theme ~coverage_files ~coverage_paths
-    ~source_paths ~ignore_missing_files ~expect ~do_not_expect ~tree
+    ~source_paths ~ignore_missing_files ~expect ~do_not_expect
     ~sort_by_stats =
 
   (* Read all the [.coverage] files and get per-source file visit counts. *)
@@ -574,7 +557,6 @@ let output
 
   (* Write the coverage report landing page. *)
   output_html_index
-    ~tree
     ~sort_by_stats
     title
     theme

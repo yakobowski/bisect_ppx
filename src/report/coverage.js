@@ -108,6 +108,17 @@ function handle_collapsible_click()
             {
                 var details = summary.parentElement;
 
+                function update_collapsible_state() {
+                    var collapsible_state = JSON.parse(localStorage.getItem("bisect_ppx_collapsible_state") || "{}");
+                    document.querySelectorAll("#files details").forEach(function(d) {
+                        var path = d.dataset.path;
+                        if (path) {
+                            collapsible_state[path] = d.hasAttribute('open') ? 'expanded' : 'collapsed';
+                        }
+                    });
+                    localStorage.setItem("bisect_ppx_collapsible_state", JSON.stringify(collapsible_state));
+                }
+
                 var all_open = function (sub_details) {
                     var all_are_open = true;
                     for (let details of sub_details) {
@@ -126,6 +137,8 @@ function handle_collapsible_click()
                             details.setAttribute('open', '');
                     }
                 };
+
+                setTimeout(update_collapsible_state, 0);
 
                 // ctrl-click toggles the state of the folder and all sub-folders, recursively:
                 //  - if all sub-folders are opened, then all sub-folders are closed
@@ -256,11 +269,15 @@ function handle_settings_clicks()
                 current_level.files.push({ element: file_element, name: filename });
             });
 
-            function render_tree_node(node, name) {
+            var collapsible_state = JSON.parse(localStorage.getItem("bisect_ppx_collapsible_state") || "{}");
+
+            function render_tree_node(node, name, path) {
                 var dir_html = "";
                 var sorted_dirs = Object.keys(node.dirs).sort();
+                var current_path = path ? path + '/' + name : name;
+
                 sorted_dirs.forEach(function(dir_name) {
-                    dir_html += render_tree_node(node.dirs[dir_name], dir_name);
+                    dir_html += render_tree_node(node.dirs[dir_name], dir_name, current_path);
                 });
 
                 var file_html = "";
@@ -295,7 +312,17 @@ function handle_settings_clicks()
                         file_percentage = Math.floor(100 * file_stats.visited / file_stats.total);
                     }
 
-                    file_html = '<details>' +
+                    var files_path = (current_path ? current_path + '/' : '') + '(files)';
+                    var files_open_attr;
+                    if (collapsible_state[files_path] === 'collapsed') {
+                        files_open_attr = '';
+                    } else if (collapsible_state[files_path] === 'expanded') {
+                        files_open_attr = 'open';
+                    } else {
+                        files_open_attr = ''; // Default collapsed
+                    }
+
+                    file_html = '<details data-path="' + files_path + '" ' + files_open_attr + '>' +
                         '<summary>' +
                         '<span class="summary-indicator"></span>' +
                         '<div class="directory">' +
@@ -319,7 +346,22 @@ function handle_settings_clicks()
                     percentage = Math.floor(100 * node.stats.visited / node.stats.total);
                 }
 
-                return '<details open="">' +
+                var open_attr;
+                if (collapsible_state[current_path] === 'collapsed') {
+                    open_attr = '';
+                } else if (collapsible_state[current_path] === 'expanded') {
+                    open_attr = 'open';
+                } else {
+                    var has_subdirs = sorted_dirs.length > 0;
+                    var has_files = node.files.length > 0;
+                    if(has_subdirs || has_files) {
+                        open_attr = 'open'; // Default open
+                    } else {
+                        open_attr = '';
+                    }
+                }
+
+                return '<details data-path="' + current_path + '" ' + open_attr + '>' +
                     '<summary>' +
                     '<span class="summary-indicator"></span>' +
                     '<div class="directory">' +
@@ -334,7 +376,7 @@ function handle_settings_clicks()
                     '</details>';
             }
 
-            files_container.innerHTML = render_tree_node(tree, null);
+            files_container.innerHTML = render_tree_node(tree, null, null);
 
         } else { // flat view
             files_container.innerHTML = "";

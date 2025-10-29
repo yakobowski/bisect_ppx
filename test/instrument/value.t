@@ -72,7 +72,6 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   > let _ = Failure (String.concat "" [])
   > EOF
   let _ = Failure "foo"
-  
   let _ = Failure (___bisect_post_visit___ 0 (String.concat "" []))
 
 
@@ -87,7 +86,6 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   > let _ = `Foo (print_endline "foo")
   > EOF
   let _ = `Foo "bar"
-  
   let _ = `Foo (___bisect_post_visit___ 0 (print_endline "foo"))
 
 
@@ -96,7 +94,6 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   > let _ = {contents = print_endline "foo"}
   > EOF
   let _ = { contents = 0 }
-  
   let _ = { contents = ___bisect_post_visit___ 0 (print_endline "foo") }
 
 
@@ -171,7 +168,6 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   > let _ = fun () -> (print_endline "foo" : unit)
   > EOF
   let _ = (0 : int)
-  
   let _ = (___bisect_post_visit___ 0 (print_endline "foo") : unit)
   
   let _ =
@@ -194,7 +190,10 @@ No instrumentation is inserted into expressions that are (syntactic) values.
   
   let _ = (___bisect_post_visit___ 1 (f ()) :> [ `Foo | `Bar ])
   
-  let _ = fun () -> (f () :> [ `Foo | `Bar ])
+  let _ =
+   fun () ->
+    ___bisect_visit___ 2;
+    (f () :> [ `Foo | `Bar ])
 
 
   $ bash test.sh <<'EOF'

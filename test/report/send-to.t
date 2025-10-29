@@ -6,7 +6,7 @@
   > EOF
   $ dune exec ./test.exe --instrument-with bisect_ppx
 
-  $ git init --quiet
+  $ git init --quiet -b main
   $ export GIT_COMMITTER_NAME=C
   $ export GIT_COMMITTER_EMAIL=d
   $ export GIT_COMMITTER_DATE='Jan 1 00:00:00 2020 +0000'
@@ -16,16 +16,16 @@
 From Travis to Coveralls.
 
   $ bisect-ppx-report send-to --dry-run No-such-service --verbose 2>&1 | sed s/…/.../g | sed s/\`/\'/g
-  Usage: bisect-ppx-report send-to [--help] [OPTION]... SERVICE
-         [COVERAGE_FILES]...
   bisect-ppx-report: SERVICE argument: invalid value 'No-such-service',
                      expected either 'Codecov' or 'Coveralls'
+  Usage: bisect-ppx-report send-to [OPTION]... SERVICE [COVERAGE_FILES]...
+  Try 'bisect-ppx-report send-to --help' or 'bisect-ppx-report --help' for more information.
 
   $ bisect-ppx-report send-to --dry-run coveralls --verbose 2>&1 | sed s/…/.../g | sed s/\`/\'/g
-  Usage: bisect-ppx-report send-to [--help] [OPTION]... SERVICE
-         [COVERAGE_FILES]...
   bisect-ppx-report: SERVICE argument: invalid value 'coveralls', expected
                      either 'Codecov' or 'Coveralls'
+  Usage: bisect-ppx-report send-to [OPTION]... SERVICE [COVERAGE_FILES]...
+  Try 'bisect-ppx-report send-to --help' or 'bisect-ppx-report --help' for more information.
 
   $ bisect-ppx-report send-to --dry-run Coveralls --verbose
   Info: will write coverage report to 'coverage.json'
@@ -138,7 +138,7 @@ From CircleCI to Coveralls.
       "service_job_id": "100",
       "service_pull_request": "10",
       "repo_token": "abc",
-      "git":{"head":{"id":"5689966cc697646c10975ff9355863bc12744ea0","author_name":"A","author_email":"b","committer_name":"C","committer_email":"d","message":"Foo"},"branch":"master","remotes":{}},
+      "git":{"head":{"id":"5689966cc697646c10975ff9355863bc12744ea0","author_name":"A","author_email":"b","committer_name":"C","committer_email":"d","message":"Foo"},"branch":"main","remotes":{}},
   
     "source_files": [
           {
@@ -213,7 +213,7 @@ From GitHub Actions to Coveralls.
       "service_name": "github",
       "service_job_id": "100",
       "repo_token": "abc",
-      "git":{"head":{"id":"5689966cc697646c10975ff9355863bc12744ea0","author_name":"A","author_email":"b","committer_name":"C","committer_email":"d","message":"Foo"},"branch":"master","remotes":{}},
+      "git":{"head":{"id":"5689966cc697646c10975ff9355863bc12744ea0","author_name":"A","author_email":"b","committer_name":"C","committer_email":"d","message":"Foo"},"branch":"main","remotes":{}},
   
     "source_files": [
           {

@@ -53,21 +53,13 @@ Trivial syntactic values are not instrumented.
   > let _ = lazy x
   > EOF
   let _ = lazy ()
-  
   let _ = lazy false
-  
   let _ = lazy 0
-  
   let _ = lazy 0.
-  
   let _ = lazy ""
-  
   let _ = lazy '0'
-  
   let _ = lazy []
-  
   let _ = lazy None
-  
   let _ = lazy Exit
   
   let _ =
@@ -84,9 +76,6 @@ Trivial syntactic values are not instrumented.
           ())
   
   let _ = lazy (() : unit)
-  
   let _ = lazy (() :> unit)
-  
   let x = 1 + 1
-  
   let _ = lazy x

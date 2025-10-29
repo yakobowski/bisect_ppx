@@ -22,9 +22,7 @@ Parameters are preserved.
   > end
   > EOF
   class foo_1 () = object end
-  
   class foo_2 ~l:_ = object end
-  
   class foo_3 ?l:_ () = object end
 
 

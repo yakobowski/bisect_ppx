@@ -40,6 +40,10 @@
         <h1>Coverage report</h1>
         <h2>85.71%</h2>
       </div>
+      <div id="settings">
+        <input type="checkbox" id="show-empty-files-input" />
+        <label for="show-empty-files-input">show empty files</label>
+      </div>
       <div id="files">
         <details open="">
           <summary>
@@ -52,7 +56,7 @@
           <span class="dirname">baz/</span>
           </div>
           </summary>
-        <div>
+        <div data-total="2">
           <span class="summary-indicator"></span>
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
@@ -85,7 +89,7 @@
           <span class="dirname">foo/bar/</span>
           </div>
           </summary>
-        <div>
+        <div data-total="2">
           <span class="summary-indicator"></span>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
@@ -95,7 +99,7 @@
             <span class="dirname">foo/bar/</span>bar_a.ml
           </a>
         </div>
-        <div>
+        <div data-total="2">
           <span class="summary-indicator"></span>
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
@@ -106,7 +110,7 @@
           </a>
         </div>
         </details>
-        <div>
+        <div data-total="2">
           <span class="summary-indicator"></span>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
@@ -117,7 +121,7 @@
           </a>
         </div>
         </details>
-        <div>
+        <div data-total="6">
           <span class="summary-indicator"></span>
           <span class="meter">
             <span class="covered" style="width: 100%"></span>

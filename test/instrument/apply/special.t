@@ -97,7 +97,6 @@ Subexpressions are still instrumented.
   > let _ = (:=) (ref (print_endline "foo")) (print_endline "bar")
   > EOF
   let _ = ref (___bisect_post_visit___ 0 (print_endline "foo"))
-  
   let _ = !(ref (___bisect_post_visit___ 1 (print_endline "foo")))
   
   let _ =
@@ -310,5 +309,4 @@ Subexpressions are still instrumented.
        "bar")
   
   let _ = ignore (___bisect_post_visit___ 3 (print_endline "foo"))
-  
   let _ = Obj.magic (___bisect_post_visit___ 4 (print_endline "foo"))

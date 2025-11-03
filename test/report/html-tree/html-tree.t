@@ -41,13 +41,36 @@
         <h2>85.71%</h2>
       </div>
       <div id="settings">
-        <input type="checkbox" id="show-empty-files-input" />
-        <label for="show-empty-files-input">show empty files</label>
-        <input type="checkbox" id="tree-view-input" />
-        <label for="tree-view-input">tree view</label>
+        <div>
+          <input type="checkbox" id="show-empty-files-input" />
+          <label for="show-empty-files-input">show empty files</label>
+        </div>
+        <div>
+          <input type="checkbox" id="tree-view-input" />
+          <label for="tree-view-input">tree view</label>
+        </div>
+        <div style="margin-left: 20px">
+          <input type="checkbox" id="group-files-input" />
+          <label for="group-files-input">group files</label>
+        </div>
+        <div id="sorting-options">
+          <span>sort by:</span>
+          <div>
+            <input type="radio" id="filename-sort" name="sort" value="filename" checked />
+            <label for="filename-sort">filename</label>
+          </div>
+          <div>
+            <input type="radio" id="coverage-sort" name="sort" value="coverage" />
+            <label for="coverage-sort">coverage</label>
+          </div>
+          <div>
+            <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
+            <label for="nb-statements-sort">nb statements</label>
+          </div>
+        </div>
       </div>
       <div id="files">
-        <div data-total="2">
+        <div data-total="2" data-statements="2" data-coverage="50.00">
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
           </span>
@@ -56,7 +79,7 @@
             <span class="dirname">baz/</span>baz.ml
           </a>
         </div>
-        <div data-total="2">
+        <div data-total="2" data-statements="2" data-coverage="100.00">
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -65,7 +88,7 @@
             <span class="dirname">foo/bar/</span>bar_a.ml
           </a>
         </div>
-        <div data-total="2">
+        <div data-total="2" data-statements="2" data-coverage="50.00">
           <span class="meter">
             <span class="covered" style="width: 50%"></span>
           </span>
@@ -74,7 +97,7 @@
             <span class="dirname">foo/bar/</span>bar_b.ml
           </a>
         </div>
-        <div data-total="2">
+        <div data-total="2" data-statements="2" data-coverage="100.00">
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>
@@ -83,7 +106,7 @@
             <span class="dirname">foo/</span>foo.ml
           </a>
         </div>
-        <div data-total="6">
+        <div data-total="6" data-statements="6" data-coverage="100.00">
           <span class="meter">
             <span class="covered" style="width: 100%"></span>
           </span>

@@ -274,11 +274,19 @@ let coveralls =
 
 
 let merge =
-  let call_with_labels to_file coverage_files coverage_paths =
-    Merge.output ~to_file ~coverage_files ~coverage_paths
+  let j =
+    Arg.(value @@ opt int 1 @@
+      info ["j"] ~docv:"N" ~doc:"Number of parallel merge processes.")
+  in
+  let response_file =
+    Arg.(value @@ opt (some string) None @@
+      info ["response-file"] ~docv:"FILE" ~doc:"File containing a list of coverage files to merge.")
+  in
+  let call_with_labels to_file coverage_files coverage_paths j response_file =
+    Merge.output ~to_file ~coverage_files ~coverage_paths ~j ~response_file
   in
   Term.(const set_verbose $ verbose $ const call_with_labels $ to_file
-    $ coverage_files 1 $ coverage_paths),
+    $ coverage_files 1 $ coverage_paths $ j $ response_file),
   term_info "merge" ~doc:"Merge coverage files"
 
 (* Entry point. *)

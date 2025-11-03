@@ -26,6 +26,8 @@ depends: [
 
   "dune" {with-test & >= "3.0.0"}
   "ocamlformat" {with-test & = "0.22.4"}
+  "js_of_ocaml" {with-test}
+  "reason" {with-test}
 ]
 
 build: [

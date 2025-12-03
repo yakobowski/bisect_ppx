@@ -9,6 +9,7 @@ val output :
   title:string ->
   tab_size:int ->
   theme:[ `Light | `Dark | `Auto ] ->
+  tree:bool ->
   coverage_files:string list ->
   coverage_paths:string list ->
   source_paths:string list ->

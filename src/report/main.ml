@@ -160,6 +160,10 @@ let html =
         ("$(i,light) or $(i,dark). The default value, $(i,auto), causes " ^
         "the report's theme to adapt to system or browser preferences."))
   in
+  let tree =
+    Arg.(value @@ flag @@
+      info ["tree"] ~doc:"Show the report in a tree view by default.")
+  in
   let sort_by_stats =
     Arg.(value @@ flag @@
       info ["sort-by-stats"] ~doc:
@@ -167,16 +171,16 @@ let html =
   in
 
   let call_with_labels
-      to_directory title tab_size theme coverage_files coverage_paths
+      to_directory title tab_size theme tree coverage_files coverage_paths
       source_paths ignore_missing_files expect do_not_expect
       sort_by_stats =
     Html.output
-      ~to_directory ~title ~tab_size ~theme ~coverage_files ~coverage_paths
+      ~to_directory ~title ~tab_size ~theme ~tree ~coverage_files ~coverage_paths
       ~source_paths ~ignore_missing_files ~expect ~do_not_expect
       ~sort_by_stats
   in
   Term.(const set_verbose $ verbose $ const call_with_labels $ to_directory
-    $ title $ tab_size $ theme $ coverage_files 0 $ coverage_paths
+    $ title $ tab_size $ theme $ tree $ coverage_files 0 $ coverage_paths
     $ source_paths $ ignore_missing_files $ expect $ do_not_expect
     $ sort_by_stats),
   term_info "html" ~doc:"Generate HTML report locally."

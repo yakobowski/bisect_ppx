@@ -60,7 +60,7 @@ struct
     |> List.concat
 end
 
-let output_html_index ~sort_by_stats title theme filename files =
+let output_html_index ~sort_by_stats ~tree title theme filename files =
   Util.info "Writing index file...";
 
   let add_stats (visited, total) (visited', total') =
@@ -184,7 +184,7 @@ let output_html_index ~sort_by_stats title theme filename files =
     <meta name="description" content="%s coverage overall"/>
     <link rel="stylesheet" type="text/css" href="coverage.css"/>
   </head>
-  <body>
+  <body data-tree-view="%b">
     <div id="header">
       <h1>%s</h1>
       <h2>%s</h2>
@@ -223,6 +223,7 @@ let output_html_index ~sort_by_stats title theme filename files =
       (theme_class theme)
       title
       overall_coverage
+      tree
       title
       overall_coverage;
 
@@ -546,7 +547,7 @@ let output_string_to_separate_file content filename =
 (* HTML generator entry point. *)
 
 let output
-    ~to_directory ~title ~tab_size ~theme ~coverage_files ~coverage_paths
+    ~to_directory ~title ~tab_size ~theme ~tree ~coverage_files ~coverage_paths
     ~source_paths ~ignore_missing_files ~expect ~do_not_expect
     ~sort_by_stats =
 
@@ -582,6 +583,7 @@ let output
   (* Write the coverage report landing page. *)
   output_html_index
     ~sort_by_stats
+    ~tree
     title
     theme
     (Filename.concat to_directory "index.html")

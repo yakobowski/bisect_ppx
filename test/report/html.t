@@ -23,7 +23,7 @@
       <meta name="description" content="33.33% coverage overall"/>
       <link rel="stylesheet" type="text/css" href="coverage.css"/>
     </head>
-    <body>
+    <body data-tree-view="false">
       <div id="header">
         <h1>Coverage report</h1>
         <h2>33.33%</h2>

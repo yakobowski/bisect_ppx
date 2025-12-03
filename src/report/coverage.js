@@ -470,7 +470,7 @@ function handle_settings_clicks()
     show_empty_checkbox.checked = show_empty_files === "true";
 
     var tree_view = localStorage.getItem("tree-view");
-    if (tree_view === null) tree_view = "true";
+    if (tree_view === null) tree_view = document.body.dataset.treeView === "true" ? "true" : "false";
     tree_view_checkbox.checked = tree_view === "true";
     group_files_checkbox.disabled = !tree_view_checkbox.checked;
 

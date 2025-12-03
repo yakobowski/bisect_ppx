@@ -7,7 +7,7 @@
   >   (instrumentation (backend bisect_ppx)))
   > EOF
   $ dune exec ./test_tree.exe --instrument-with bisect_ppx
-  $ bisect-ppx-report html --verbose
+  $ bisect-ppx-report html --tree --verbose
   Info: found *.coverage files in './'
   Info: Writing index file...
   $ ls _coverage | sort
@@ -35,7 +35,7 @@
       <meta name="description" content="85.71% coverage overall"/>
       <link rel="stylesheet" type="text/css" href="coverage.css"/>
     </head>
-    <body data-tree-view="false">
+    <body data-tree-view="true">
       <div id="header">
         <h1>Coverage report</h1>
         <h2>85.71%</h2>

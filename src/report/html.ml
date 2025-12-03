@@ -60,7 +60,7 @@ struct
     |> List.concat
 end
 
-let output_html_index ~sort_by_stats ~tree title theme filename files =
+let output_html_index ~tree ~sort_by_stats title theme filename files =
   Util.info "Writing index file...";
 
   let add_stats (visited, total) (visited', total') =
@@ -168,10 +168,11 @@ let output_html_index ~sort_by_stats ~tree title theme filename files =
     let (files, stats) = collate files in
 
     let files =
-      if sort_by_stats then
+      match sort_by_stats, tree with
+      | false, _ -> files
+      | true, false ->
         files |> Index_element.flatten |> Index_element.sort_by_stats
-      else
-        files
+      | true, true -> files |> Index_element.sort_by_stats
     in
 
     let overall_coverage =
@@ -547,8 +548,8 @@ let output_string_to_separate_file content filename =
 (* HTML generator entry point. *)
 
 let output
-    ~to_directory ~title ~tab_size ~theme ~tree ~coverage_files ~coverage_paths
-    ~source_paths ~ignore_missing_files ~expect ~do_not_expect
+    ~to_directory ~title ~tab_size ~theme ~coverage_files ~coverage_paths
+    ~source_paths ~ignore_missing_files ~expect ~do_not_expect ~tree
     ~sort_by_stats =
 
   (* Read all the [.coverage] files and get per-source file visit counts. *)
@@ -582,8 +583,8 @@ let output
 
   (* Write the coverage report landing page. *)
   output_html_index
-    ~sort_by_stats
     ~tree
+    ~sort_by_stats
     title
     theme
     (Filename.concat to_directory "index.html")

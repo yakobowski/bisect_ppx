@@ -9,12 +9,12 @@ val output :
   title:string ->
   tab_size:int ->
   theme:[ `Light | `Dark | `Auto ] ->
-  tree:bool ->
   coverage_files:string list ->
   coverage_paths:string list ->
   source_paths:string list ->
   ignore_missing_files:bool ->
   expect:string list ->
   do_not_expect:string list ->
+  tree:bool ->
   sort_by_stats:bool ->
     unit

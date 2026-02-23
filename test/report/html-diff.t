@@ -13,3 +13,9 @@
   [1]
   $ grep "class=\"lost\"" _coverage/t.ml.html > /dev/null
   [1]
+  $ grep "lost-sort" _coverage/index.html
+            <input type="radio" id="lost-sort" name="sort" value="lost" />
+            <label for="lost-sort">no longer covered</label>
+  $ grep "new-sort" _coverage/index.html
+            <input type="radio" id="new-sort" name="sort" value="new" />
+            <label for="new-sort">newly covered</label>

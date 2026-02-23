@@ -266,6 +266,14 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
           <label for="coverage-sort">coverage</label>
         </div>
         <div>
+          <input type="radio" id="lost-sort" name="sort" value="lost" />
+          <label for="lost-sort">no longer covered</label>
+        </div>
+        <div>
+          <input type="radio" id="new-sort" name="sort" value="new" />
+          <label for="new-sort">newly covered</label>
+        </div>
+        <div>
           <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
           <label for="nb-statements-sort">nb statements</label>
         </div>
@@ -433,6 +441,14 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
         <div>
           <input type="radio" id="coverage-sort" name="sort" value="coverage" />
           <label for="coverage-sort">coverage</label>
+        </div>
+        <div>
+          <input type="radio" id="lost-sort" name="sort" value="lost" />
+          <label for="lost-sort">no longer covered</label>
+        </div>
+        <div>
+          <input type="radio" id="new-sort" name="sort" value="new" />
+          <label for="new-sort">newly covered</label>
         </div>
         <div>
           <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
@@ -826,6 +842,7 @@ let output_for_diff_source_file
       let n1 = if index < len1 then counts1.(index) else 0 in
       let n2 = if index < len2 then counts2.(index) else 0 in
       let s = !stats in
+      (* Update aggregate stats for the file based on this point's state. *)
       let s =
         if n1 > 0 && n2 > 0 then { s with both = s.both + 1 }
         else if n1 > 0 then { s with only1 = s.only1 + 1 }
@@ -871,7 +888,9 @@ let output_for_diff_source_file
     Filename.concat path_to_report_root "coverage.js" in
   let index_html = Filename.concat path_to_report_root "index.html" in
 
-  (* Processes one line of source code and returns its representation. *)
+  (* Processes one line of source code and returns its representation.
+     [number] is the line number, [line] is the raw text, [start_ofs] is the
+     byte offset of the line start, and [before] are points on this line. *)
   let handle_line number line start_ofs before =
     (* Escape the line content and wrap points in markers. *)
     let line' = escape_diff_line tab_size line start_ofs before in
@@ -881,6 +900,7 @@ let output_for_diff_source_file
       match before with
       | [] -> Diff_none
       | (_, n1, n2)::tl ->
+        (* Helper to determine the diff state of a single point. *)
         let get_state n1 n2 =
           if n1 > 0 && n2 > 0 then Diff_both
           else if n1 > 0 then Diff_only1
@@ -888,10 +908,12 @@ let output_for_diff_source_file
           else Diff_neither
         in
         let first_state = get_state n1 n2 in
+        (* Check if all points on this line have the same state. *)
         let is_mixed =
           List.exists (fun (_, n1, n2) -> get_state n1 n2 <> first_state) tl
         in
         if is_mixed then
+          (* If states are mixed, calculate the breakdown for the tooltip. *)
           let b, o1, o2, n =
             List.fold_left (fun (b, o1, o2, n) (_, n1, n2) ->
               match get_state n1 n2 with
@@ -901,6 +923,7 @@ let output_for_diff_source_file
               | Diff_neither -> (b, o1, o2, n + 1)
               | Diff_none | Diff_mixed _ -> assert false
             )
+            (* Start with the state of the first point. *)
             (match first_state with
              | Diff_both -> (1, 0, 0, 0)
              | Diff_only1 -> (0, 1, 0, 0)

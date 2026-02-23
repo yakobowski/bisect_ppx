@@ -233,12 +233,26 @@ function handle_settings_clicks()
                     if (type === 'file') return -item.coverage;
                     if (type === 'directory') {
                         var percentage = 0;
-                        if (item.stats.total > 0) {
-                            percentage = 100 * item.stats.visited / item.stats.total;
+                        if (is_diff_view) {
+                            if (item.stats.total > 0) {
+                                percentage = 100 * (item.stats.both + item.stats.only2) / item.stats.total;
+                            }
+                        } else {
+                            if (item.stats.total > 0) {
+                                percentage = 100 * item.stats.visited / item.stats.total;
+                            }
                         }
                         return -percentage;
                     }
                     return -parseFloat(item.dataset.coverage);
+                case 'lost':
+                    if (type === 'file') return -parseInt(item.element.dataset.only1);
+                    if (type === 'directory') return -item.stats.only1;
+                    return -parseInt(item.dataset.only1);
+                case 'new':
+                    if (type === 'file') return -parseInt(item.element.dataset.only2);
+                    if (type === 'directory') return -item.stats.only2;
+                    return -parseInt(item.dataset.only2);
                 case 'filename':
                 default:
                     if (type === 'file') return item.name.toLowerCase();

@@ -813,6 +813,8 @@ let output_for_diff_source_file
   let len1 = Array.length counts1 in
   let len2 = Array.length counts2 in
   let stats = ref { both = 0; only1 = 0; only2 = 0; neither = 0 } in
+
+  (* Combine instrumentation points from both reports and calculate stats. *)
   let points =
     points
     |> Array.to_list
@@ -868,10 +870,13 @@ let output_for_diff_source_file
   let coverage_js =
     Filename.concat path_to_report_root "coverage.js" in
   let index_html = Filename.concat path_to_report_root "index.html" in
+
   (* Processes one line of source code and returns its representation. *)
   let handle_line number line start_ofs before =
+    (* Escape the line content and wrap points in markers. *)
     let line' = escape_diff_line tab_size line start_ofs before in
 
+    (* Determine the overall coverage state of the line. *)
     let state =
       match before with
       | [] -> Diff_none
@@ -912,6 +917,7 @@ let output_for_diff_source_file
   in
 
   (try
+    (* Read source file lines and process them. *)
     let lines, line_count =
       let rec read number acc =
         let start_ofs = pos_in in_channel in
@@ -943,7 +949,7 @@ let output_for_diff_source_file
 
     let write format = Printf.fprintf out_channel format in
 
-    (* Head and header. *)
+    (* HTML Head and header. *)
     let file_coverage = Printf.sprintf "%.02f%%" (diff_percentage !stats) in
     write {|<!DOCTYPE html>
 <html lang="en"%s>

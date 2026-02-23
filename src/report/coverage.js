@@ -271,7 +271,7 @@ function handle_settings_clicks()
                 var visited, total, both, only1, only2, neither;
 
                 if (is_diff_view) {
-                    var matches = stats_text.match(/\((\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)/);
+                    var matches = stats_text.match(/\((\d+),\s*\+(\d+),\s*-(\d+),\s*(\d+)\)/);
                     both = parseInt(matches[1]);
                     only2 = parseInt(matches[2]);
                     only1 = parseInt(matches[3]);
@@ -383,7 +383,7 @@ function handle_settings_clicks()
                         var stats_span = file.element.querySelector("span.stats");
                         var stats_text = stats_span.textContent;
                         if (is_diff_view) {
-                            var matches = stats_text.match(/\((\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)/);
+                            var matches = stats_text.match(/\((\d+),\s*\+(\d+),\s*-(\d+),\s*(\d+)\)/);
                             var both = parseInt(matches[1]);
                             var only2 = parseInt(matches[2]);
                             var only1 = parseInt(matches[3]);

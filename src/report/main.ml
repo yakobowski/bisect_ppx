@@ -196,6 +196,71 @@ let html =
 
 
 
+let html_diff =
+  let to_directory =
+    Arg.(value @@ opt string "./_coverage" @@
+      info ["o"] ~docv:"DIRECTORY" ~doc:"Output directory.")
+  in
+  let title =
+    Arg.(value @@ opt string "Coverage report" @@
+      info ["title"] ~docv:"STRING" ~doc:"Report title for use in HTML pages.")
+  in
+  let tab_size =
+    Arg.(value @@ opt int 2 @@
+      info ["tab-size"] ~docv:"N" ~doc:
+        "Set TAB width for replacing TAB characters in HTML pages.")
+  in
+  let theme =
+    Arg.(value @@
+      opt (enum ["light", `Light; "dark", `Dark; "auto", `Auto]) `Auto @@
+      info ["theme"] ~docv:"THEME" ~doc:
+        ("$(i,light) or $(i,dark). The default value, $(i,auto), causes " ^
+        "the report's theme to adapt to system or browser preferences."))
+  in
+  let tree =
+    Arg.(value @@ flag @@
+      info ["tree"] ~doc:
+        ("Generate collapsible directory tree with per-directory summaries."))
+  in
+  let sort_by_stats =
+    Arg.(value @@ flag @@
+      info ["sort-by-stats"] ~doc:
+        ("Sort files in order of increasing coverage stats."))
+  in
+  let report1 =
+    Arg.(required @@ pos 0 (some string) None @@
+      info [] ~docv:"REPORT1" ~doc:"First coverage report (merged).")
+  in
+  let report2 =
+    Arg.(required @@ pos 1 (some string) None @@
+      info [] ~docv:"REPORT2" ~doc:"Second coverage report (merged).")
+  in
+
+  let call_with_labels
+      to_directory title tab_size theme report1 report2
+      source_paths ignore_missing_files expect do_not_expect tree
+      sort_by_stats =
+    Html.diff_output
+      ~to_directory ~title ~tab_size ~theme ~report1 ~report2
+      ~source_paths ~ignore_missing_files ~expect ~do_not_expect ~tree
+      ~sort_by_stats
+  in
+  Term.(const set_verbose $ verbose $ const call_with_labels $ to_directory
+    $ title $ tab_size $ theme $ report1 $ report2
+    $ source_paths $ ignore_missing_files $ expect $ do_not_expect $ tree
+    $ sort_by_stats),
+  term_info "html-diff" ~doc:"Generate HTML diff report locally."
+    ~man:[
+      `S "USAGE EXAMPLE";
+      `P "Run";
+      `Pre "    bisect-ppx-report html-diff report1.coverage report2.coverage";
+      `P
+        ("Then view the generated report at _coverage/index.html with your " ^
+        "browser.")
+    ]
+
+
+
 let send_to =
   let service =
     Arg.(required @@ pos 0
@@ -304,7 +369,7 @@ let () =
       ]
       ~exits:((Cmd.Exit.info ~doc:"on error." 1)::Cmd.Exit.defaults)
       )
-    ([html; send_to; text; cobertura; coveralls; merge]
+    ([html; html_diff; send_to; text; cobertura; coveralls; merge]
     |> List.map (fun (term, info) -> Cmd.v info term))
   |> Cmd.eval
   |> exit

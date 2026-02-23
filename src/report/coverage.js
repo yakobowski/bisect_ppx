@@ -18,11 +18,11 @@ function attach_tool_tip()
     document.querySelector("body").onmousemove = function (event)
     {
         var element = event.target;
-        if (element.dataset.count === undefined)
+        if (element.dataset.count === undefined && element.dataset.tooltip === undefined)
             element = event.target.parentNode;
 
-        if (element.dataset.count && element.dataset.count !== "0") {
-            tool_tip.textContent = element.dataset.count;
+        if (element.dataset.tooltip || (element.dataset.count && element.dataset.count !== "0")) {
+            tool_tip.textContent = element.dataset.tooltip || element.dataset.count;
             tool_tip.classList.add("visible");
 
             if (event.clientY < html.clientHeight - 48)
@@ -198,6 +198,7 @@ function handle_settings_clicks()
         var use_tree_view = tree_view_checkbox.checked;
         var group_files = group_files_checkbox.checked;
         var sorting = document.querySelector("#sorting-options input:checked").value;
+        var is_diff_view = document.body.dataset.diffView === 'true';
 
         var visible_files = all_files.filter(function(el) {
             return show_empty || el.dataset.total !== '0';
@@ -251,7 +252,12 @@ function handle_settings_clicks()
         }
 
         if (use_tree_view) {
-            var tree = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
+            var tree;
+            if (is_diff_view) {
+                tree = { dirs: {}, files: [], stats: { both: 0, only1: 0, only2: 0, neither: 0, total: 0 } };
+            } else {
+                tree = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
+            }
 
             visible_files.forEach(function(file_element) {
                 var link = file_element.querySelector("a");
@@ -262,23 +268,52 @@ function handle_settings_clicks()
 
                 var stats_span = file_element.querySelector("span.stats");
                 var stats_text = stats_span.textContent;
-                var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
-                var visited = parseInt(matches[1]);
-                var total = parseInt(matches[2]);
+                var visited, total, both, only1, only2, neither;
+
+                if (is_diff_view) {
+                    var matches = stats_text.match(/\((\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)/);
+                    both = parseInt(matches[1]);
+                    only2 = parseInt(matches[2]);
+                    only1 = parseInt(matches[3]);
+                    neither = parseInt(matches[4]);
+                    total = both + only1 + only2 + neither;
+                } else {
+                    var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
+                    visited = parseInt(matches[1]);
+                    total = parseInt(matches[2]);
+                }
 
                 var path_components = path.split('/').filter(function(c) { return c.length > 0; });
 
                 var current_level = tree;
-                tree.stats.visited += visited;
+                if (is_diff_view) {
+                    tree.stats.both += both;
+                    tree.stats.only1 += only1;
+                    tree.stats.only2 += only2;
+                    tree.stats.neither += neither;
+                } else {
+                    tree.stats.visited += visited;
+                }
                 tree.stats.total += total;
 
                 for (var j = 0; j < path_components.length - 1; j++) {
                     var dir = path_components[j];
                     if (!current_level.dirs[dir]) {
-                        current_level.dirs[dir] = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
+                        if (is_diff_view) {
+                            current_level.dirs[dir] = { dirs: {}, files: [], stats: { both: 0, only1: 0, only2: 0, neither: 0, total: 0 } };
+                        } else {
+                            current_level.dirs[dir] = { dirs: {}, files: [], stats: { visited: 0, total: 0 } };
+                        }
                     }
                     current_level = current_level.dirs[dir];
-                    current_level.stats.visited += visited;
+                    if (is_diff_view) {
+                        current_level.stats.both += both;
+                        current_level.stats.only1 += only1;
+                        current_level.stats.only2 += only2;
+                        current_level.stats.neither += neither;
+                    } else {
+                        current_level.stats.visited += visited;
+                    }
                     current_level.stats.total += total;
                 }
 
@@ -337,18 +372,56 @@ function handle_settings_clicks()
                 });
 
                 if (group_files && dir_html !== "" && file_html !== "") {
-                    var file_stats = { visited: 0, total: 0 };
+                    var file_stats;
+                    if (is_diff_view) {
+                        file_stats = { both: 0, only1: 0, only2: 0, neither: 0, total: 0 };
+                    } else {
+                        file_stats = { visited: 0, total: 0 };
+                    }
+
                     node.files.forEach(function(file) {
                         var stats_span = file.element.querySelector("span.stats");
                         var stats_text = stats_span.textContent;
-                        var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
-                        file_stats.visited += parseInt(matches[1]);
-                        file_stats.total += parseInt(matches[2]);
+                        if (is_diff_view) {
+                            var matches = stats_text.match(/\((\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)/);
+                            var both = parseInt(matches[1]);
+                            var only2 = parseInt(matches[2]);
+                            var only1 = parseInt(matches[3]);
+                            var neither = parseInt(matches[4]);
+                            file_stats.both += both;
+                            file_stats.only1 += only1;
+                            file_stats.only2 += only2;
+                            file_stats.neither += neither;
+                            file_stats.total += (both + only1 + only2 + neither);
+                        } else {
+                            var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
+                            file_stats.visited += parseInt(matches[1]);
+                            file_stats.total += parseInt(matches[2]);
+                        }
                     });
 
                     var file_percentage = 0;
                     if (file_stats.total > 0) {
-                        file_percentage = Math.floor(100 * file_stats.visited / file_stats.total);
+                        if (is_diff_view) {
+                            file_percentage = Math.floor(100 * (file_stats.both + file_stats.only2) / file_stats.total);
+                        } else {
+                            file_percentage = Math.floor(100 * file_stats.visited / file_stats.total);
+                        }
+                    }
+
+                    var file_meter_html = '';
+                    var file_stats_text = '';
+                    if (is_diff_view) {
+                        var p_both = Math.floor(100 * file_stats.both / file_stats.total);
+                        var p_new = Math.floor(100 * file_stats.only2 / file_stats.total);
+                        var p_lost = Math.floor(100 * file_stats.only1 / file_stats.total);
+                        file_meter_html = '<span class="both" style="width: ' + p_both + '%"></span>' +
+                                          '<span class="new" style="width: ' + p_new + '%"></span>' +
+                                          '<span class="lost" style="width: ' + p_lost + '%"></span>';
+                        file_stats_text = '(' + file_stats.both + ', ' + file_stats.only2 + ', ' + file_stats.only1 + ', ' + file_stats.neither + ')';
+                    } else {
+                        file_meter_html = '<span class="covered" style="width: ' + file_percentage + '%"></span>';
+                        file_stats_text = '(' + file_stats.visited + ' / ' + file_stats.total + ')';
                     }
 
                     var files_path = (current_path ? current_path + '/' : '') + '(files)';
@@ -366,9 +439,9 @@ function handle_settings_clicks()
                         '<span class="summary-indicator"></span>' +
                         '<div class="directory">' +
                         '<span class="meter">' +
-                        '<span class="covered" style="width: ' + file_percentage + '%"></span>' +
+                        file_meter_html +
                         '</span>' +
-                        '<span class="percentage">' + file_percentage + '% <span class="stats">(' + file_stats.visited + ' / ' + file_stats.total + ')</span></span>' +
+                        '<span class="percentage">' + file_percentage + '% <span class="stats">' + file_stats_text + '</span></span>' +
                         '<span class="dirname">(files)</span>' +
                         '</div>' +
                         '</summary>' +
@@ -381,8 +454,23 @@ function handle_settings_clicks()
                 }
 
                 var percentage = 0;
+                var meter_html = '';
+                var stats_text = '';
                 if (node.stats.total > 0) {
-                    percentage = Math.floor(100 * node.stats.visited / node.stats.total);
+                    if (is_diff_view) {
+                        percentage = Math.floor(100 * (node.stats.both + node.stats.only2) / node.stats.total);
+                        var p_both = Math.floor(100 * node.stats.both / node.stats.total);
+                        var p_new = Math.floor(100 * node.stats.only2 / node.stats.total);
+                        var p_lost = Math.floor(100 * node.stats.only1 / node.stats.total);
+                        meter_html = '<span class="both" style="width: ' + p_both + '%"></span>' +
+                                     '<span class="new" style="width: ' + p_new + '%"></span>' +
+                                     '<span class="lost" style="width: ' + p_lost + '%"></span>';
+                        stats_text = '(' + node.stats.both + ', ' + node.stats.only2 + ', ' + node.stats.only1 + ', ' + node.stats.neither + ')';
+                    } else {
+                        percentage = Math.floor(100 * node.stats.visited / node.stats.total);
+                        meter_html = '<span class="covered" style="width: ' + percentage + '%"></span>';
+                        stats_text = '(' + node.stats.visited + ' / ' + node.stats.total + ')';
+                    }
                 }
 
                 var open_attr;
@@ -404,9 +492,9 @@ function handle_settings_clicks()
                     '<span class="summary-indicator"></span>' +
                     '<div class="directory">' +
                     '<span class="meter">' +
-                    '<span class="covered" style="width: ' + percentage + '%"></span>' +
+                    meter_html +
                     '</span>' +
-                    '<span class="percentage">' + percentage + '% <span class="stats">(' + node.stats.visited + ' / ' + node.stats.total + ')</span></span>' +
+                    '<span class="percentage">' + percentage + '% <span class="stats">' + stats_text + '</span></span>' +
                     '<span class="dirname">' + name + '/</span>' +
                     '</div>' +
                     '</summary>' +

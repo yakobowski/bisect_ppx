@@ -27,19 +27,22 @@ let percentage (visited, total) =
 
 type index_file = (string * string * (int * int))
 
+(** Coverage statistics comparison between two reports. *)
 type diff_stats = {
-  both : int;
-  only1 : int;
-  only2 : int;
-  neither : int;
+  both : int; (** Number of points covered in both reports. *)
+  only1 : int; (** Number of points covered only in the first report. *)
+  only2 : int; (** Number of points covered only in the second report. *)
+  neither : int; (** Number of points covered in neither report. *)
 }
 
 type index_element =
   | File of index_file
   | Directory of (string * index_element list * (int * int))
 
+(** Data for a single file in the diff index. *)
 type diff_index_file = (string * string * diff_stats)
 
+(** Elements in the diff index tree. *)
 type diff_index_element =
   | Diff_File of diff_index_file
   | Diff_Directory of (string * diff_index_element list * diff_stats)
@@ -73,8 +76,10 @@ struct
     |> List.concat
 end
 
+(** Total number of instrumentation points in the diff stats. *)
 let diff_total s = s.both + s.only1 + s.only2 + s.neither
 
+(** Percentage of points covered in the second report. *)
 let diff_percentage s =
   let total = diff_total s in
   if total = 0 then 100.
@@ -333,6 +338,7 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
 
 
 
+(** Generates the index page for a diff report. *)
 let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
   Util.info "Writing index file...";
 
@@ -455,7 +461,7 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
           <span class="new" style="width: %.00f%%"></span>
           <span class="lost" style="width: %.00f%%"></span>
         </span>
-        <span class="percentage">%s%% <span class="stats">(%d, %d, %d, %d)</span></span>
+        <span class="percentage">%s%% <span class="stats">(%d, +%d, -%d, %d)</span></span>
 |}
           p_both
           p_only2
@@ -749,14 +755,16 @@ let output_for_source_file
 
 
 
+(** Coverage state of a single source line in a diff report. *)
 type diff_line_state =
-  | Diff_both
-  | Diff_only1
-  | Diff_only2
-  | Diff_neither
-  | Diff_mixed of string
-  | Diff_none
+  | Diff_both (** All points on the line are covered in both reports. *)
+  | Diff_only1 (** All points on the line are covered only in the first report. *)
+  | Diff_only2 (** All points on the line are covered only in the second report. *)
+  | Diff_neither (** No points on the line are covered in either report. *)
+  | Diff_mixed of string (** Line contains points with different coverage states. *)
+  | Diff_none (** Line contains no instrumentation points. *)
 
+(** Escapes a line of source code for HTML and wraps points in markers. *)
 let escape_diff_line tab_size line offset points =
   let buff = Buffer.create (String.length line) in
   let ofs = ref offset in
@@ -796,6 +804,7 @@ let escape_diff_line tab_size line offset points =
     end;
   Buffer.contents buff
 
+(** Generates an HTML page for a single source file in a diff report. *)
 let output_for_diff_source_file
     tab_size title theme source_file_on_disk html_file_on_disk
     {Bisect_common.filename; points; counts = counts1}
@@ -859,6 +868,49 @@ let output_for_diff_source_file
   let coverage_js =
     Filename.concat path_to_report_root "coverage.js" in
   let index_html = Filename.concat path_to_report_root "index.html" in
+  (* Processes one line of source code and returns its representation. *)
+  let handle_line number line start_ofs before =
+    let line' = escape_diff_line tab_size line start_ofs before in
+
+    let state =
+      match before with
+      | [] -> Diff_none
+      | (_, n1, n2)::tl ->
+        let get_state n1 n2 =
+          if n1 > 0 && n2 > 0 then Diff_both
+          else if n1 > 0 then Diff_only1
+          else if n2 > 0 then Diff_only2
+          else Diff_neither
+        in
+        let first_state = get_state n1 n2 in
+        let is_mixed =
+          List.exists (fun (_, n1, n2) -> get_state n1 n2 <> first_state) tl
+        in
+        if is_mixed then
+          let b, o1, o2, n =
+            List.fold_left (fun (b, o1, o2, n) (_, n1, n2) ->
+              match get_state n1 n2 with
+              | Diff_both -> (b + 1, o1, o2, n)
+              | Diff_only1 -> (b, o1 + 1, o2, n)
+              | Diff_only2 -> (b, o1, o2 + 1, n)
+              | Diff_neither -> (b, o1, o2, n + 1)
+              | Diff_none | Diff_mixed _ -> assert false
+            )
+            (match first_state with
+             | Diff_both -> (1, 0, 0, 0)
+             | Diff_only1 -> (0, 1, 0, 0)
+             | Diff_only2 -> (0, 0, 1, 0)
+             | Diff_neither -> (0, 0, 0, 1)
+             | Diff_mixed _ | Diff_none -> assert false)
+            tl
+          in
+          Diff_mixed (Printf.sprintf "Mixed coverage: %d both, %d only 1st, %d only 2nd, %d neither" b o1 o2 n)
+        else
+          first_state
+    in
+    (number, line', state)
+  in
+
   (try
     let lines, line_count =
       let rec read number acc =
@@ -869,45 +921,8 @@ let output_for_diff_source_file
           let end_ofs = pos_in in_channel in
           let before, after = Util.split (fun (o, _, _) -> o < end_ofs) !pts in
           pts := after;
-          let line' = escape_diff_line tab_size line start_ofs before in
-
-          let state =
-            match before with
-            | [] -> Diff_none
-            | (_, n1, n2)::tl ->
-              let get_state n1 n2 =
-                if n1 > 0 && n2 > 0 then Diff_both
-                else if n1 > 0 then Diff_only1
-                else if n2 > 0 then Diff_only2
-                else Diff_neither
-              in
-              let first_state = get_state n1 n2 in
-              let is_mixed =
-                List.exists (fun (_, n1, n2) -> get_state n1 n2 <> first_state) tl
-              in
-              if is_mixed then
-                let b, o1, o2, n =
-                  List.fold_left (fun (b, o1, o2, n) (_, n1, n2) ->
-                    match get_state n1 n2 with
-                    | Diff_both -> (b + 1, o1, o2, n)
-                    | Diff_only1 -> (b, o1 + 1, o2, n)
-                    | Diff_only2 -> (b, o1, o2 + 1, n)
-                    | Diff_neither -> (b, o1, o2, n + 1)
-                    | _ -> (b, o1, o2, n)
-                  )
-                  (match first_state with
-                   | Diff_both -> (1, 0, 0, 0)
-                   | Diff_only1 -> (0, 1, 0, 0)
-                   | Diff_only2 -> (0, 0, 1, 0)
-                   | Diff_neither -> (0, 0, 0, 1)
-                   | _ -> (0, 0, 0, 0))
-                  tl
-                in
-                Diff_mixed (Printf.sprintf "Mixed coverage: %d both, %d only 1st, %d only 2nd, %d neither" b o1 o2 n)
-              else
-                first_state
-          in
-          read (number + 1) ((number, line', state)::acc)
+          let line_representation = handle_line number line start_ofs before in
+          read (number + 1) (line_representation::acc)
       in
       read 1 []
     in
@@ -1119,6 +1134,7 @@ let output
 
 
 
+(** Entry point for generating a diff coverage report. *)
 let diff_output
     ~to_directory ~title ~tab_size ~theme ~report1 ~report2
     ~source_paths ~ignore_missing_files ~expect ~do_not_expect ~tree

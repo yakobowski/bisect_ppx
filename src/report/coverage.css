@@ -7,7 +7,7 @@
     --meter-unvisited-color: #f9c3c3;
     --meter-visited-color: #9ed09f;
     --meter-both-color: #9ed09f;
-    --meter-new-color: #c8e6c9;
+    --meter-new-color: #e8f5e9;
     --meter-lost-color: #ffcc80;
     --meter-none-color: #f9c3c3;
     --meter-separator-color: white;
@@ -24,8 +24,8 @@
 
     --both-color: #eaffea;
     --both-number-color: rgba(64, 192, 64, 0.2);
-    --new-color: #f1f8e9;
-    --new-number-color: rgba(129, 199, 132, 0.2);
+    --new-color: #f9fdf9;
+    --new-number-color: rgba(129, 199, 132, 0.1);
     --lost-color: #fff3e0;
     --lost-number-color: rgba(255, 183, 77, 0.2);
     --none-color: #ffecec;
@@ -56,7 +56,7 @@
     --meter-unvisited-color: #622;
     --meter-visited-color: #252;
     --meter-both-color: #252;
-    --meter-new-color: #1b5e20;
+    --meter-new-color: #2e7d32;
     --meter-lost-color: #e65100;
     --meter-none-color: #622;
     --meter-separator-color: black;
@@ -73,7 +73,7 @@
 
     --both-color: #002800;
     --both-number-color: #252;
-    --new-color: #1b5e20;
+    --new-color: #003300;
     --new-number-color: #1b5e20;
     --lost-color: #4a2b00;
     --lost-number-color: #e65100;
@@ -106,7 +106,7 @@
         --meter-unvisited-color: #622;
         --meter-visited-color: #252;
         --meter-both-color: #252;
-        --meter-new-color: #1b5e20;
+        --meter-new-color: #2e7d32;
         --meter-lost-color: #e65100;
         --meter-none-color: #622;
         --meter-separator-color: black;
@@ -122,7 +122,7 @@
 
         --both-color: #002800;
         --both-number-color: #252;
-        --new-color: #1b5e20;
+        --new-color: #003300;
         --new-number-color: #1b5e20;
         --lost-color: #4a2b00;
         --lost-number-color: #e65100;

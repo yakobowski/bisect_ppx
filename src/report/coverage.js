@@ -418,7 +418,7 @@ function handle_settings_clicks()
                         file_meter_html = '<span class="both" style="width: ' + p_both + '%"></span>' +
                                           '<span class="new" style="width: ' + p_new + '%"></span>' +
                                           '<span class="lost" style="width: ' + p_lost + '%"></span>';
-                        file_stats_text = '(' + file_stats.both + ', ' + file_stats.only2 + ', ' + file_stats.only1 + ', ' + file_stats.neither + ')';
+                        file_stats_text = '(' + file_stats.both + ', +' + file_stats.only2 + ', -' + file_stats.only1 + ', ' + file_stats.neither + ')';
                     } else {
                         file_meter_html = '<span class="covered" style="width: ' + file_percentage + '%"></span>';
                         file_stats_text = '(' + file_stats.visited + ' / ' + file_stats.total + ')';
@@ -465,7 +465,7 @@ function handle_settings_clicks()
                         meter_html = '<span class="both" style="width: ' + p_both + '%"></span>' +
                                      '<span class="new" style="width: ' + p_new + '%"></span>' +
                                      '<span class="lost" style="width: ' + p_lost + '%"></span>';
-                        stats_text = '(' + node.stats.both + ', ' + node.stats.only2 + ', ' + node.stats.only1 + ', ' + node.stats.neither + ')';
+                        stats_text = '(' + node.stats.both + ', +' + node.stats.only2 + ', -' + node.stats.only1 + ', ' + node.stats.neither + ')';
                     } else {
                         percentage = Math.floor(100 * node.stats.visited / node.stats.total);
                         meter_html = '<span class="covered" style="width: ' + percentage + '%"></span>';

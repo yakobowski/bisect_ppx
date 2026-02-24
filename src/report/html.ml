@@ -35,17 +35,16 @@ type diff_stats = {
   neither : int; (** Number of points covered in neither report. *)
 }
 
+let zero_diff_stats = { both = 0; only1 = 0; only2 = 0; neither = 0 }
+
 type index_element =
   | File of index_file
   | Directory of (string * index_element list * (int * int))
 
-(** Data for a single file in the diff index. *)
-type diff_index_file = (string * string * diff_stats)
-
 (** Elements in the diff index tree. *)
 type diff_index_element =
-  | Diff_File of diff_index_file
-  | Diff_Directory of (string * diff_index_element list * diff_stats)
+  | Diff_File of { name : string; html_file : string; stats : diff_stats }
+  | Diff_Directory of { name : string; children : diff_index_element list; stats : diff_stats }
 
 module Index_element :
 sig
@@ -92,8 +91,8 @@ sig
 end =
 struct
   let percentage = function
-    | Diff_File (_, _, stat) -> diff_percentage stat
-    | Diff_Directory (_, _, stat) -> diff_percentage stat
+    | Diff_File { stats; _ } -> diff_percentage stats
+    | Diff_Directory { stats; _ } -> diff_percentage stats
 
   let compare_by_stat e1 e2 =
     compare (percentage e1, e1) (percentage e2, e2)
@@ -102,15 +101,15 @@ struct
     files
     |> List.map (function
       | (Diff_File _) as f -> f
-      | Diff_Directory (name, files, stats) ->
-        Diff_Directory (name, sort_by_stats files, stats))
+      | Diff_Directory { name; children; stats } ->
+        Diff_Directory { name; children = sort_by_stats children; stats })
     |> List.sort compare_by_stat
 
   let rec flatten files =
     files
     |> List.map (function
       | (Diff_File _) as f -> [f]
-      | Diff_Directory (_, files, _) -> flatten files)
+      | Diff_Directory { children; _ } -> flatten children)
     |> List.concat
 end
 
@@ -266,14 +265,6 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
           <label for="coverage-sort">coverage</label>
         </div>
         <div>
-          <input type="radio" id="lost-sort" name="sort" value="lost" />
-          <label for="lost-sort">no longer covered</label>
-        </div>
-        <div>
-          <input type="radio" id="new-sort" name="sort" value="new" />
-          <label for="new-sort">newly covered</label>
-        </div>
-        <div>
           <input type="radio" id="nb-statements-sort" name="sort" value="nb-statements" />
           <label for="nb-statements-sort">nb statements</label>
         </div>
@@ -360,14 +351,14 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
   let sum_diff_stats files =
     List.fold_left
       (fun stats (_, _, stats') -> add_diff_stats stats stats')
-      { both = 0; only1 = 0; only2 = 0; neither = 0 }
+      zero_diff_stats
       files
   in
 
-  let collate : diff_index_file list -> diff_index_element list * diff_stats =
+  let collate : (string * string * diff_stats) list -> diff_index_element list * diff_stats =
     fun files ->
     let rec collate_aux :
-              string -> diff_index_file list ->
+              string -> (string * string * diff_stats) list ->
               (diff_index_element list * diff_stats) =
       fun directory files ->
       let (sub_dirs, sub_files) = partition_files ~directory files in
@@ -376,10 +367,14 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
           (fun (lines, stats) (sub_dir, files)  ->
             let directory = directory ^ sub_dir ^ "/" in
             let (sub_dir_elements, sub_dir_stats) = collate_aux directory files in
-            let sub_dir_element = Diff_Directory (directory, sub_dir_elements, sub_dir_stats) in
+            let sub_dir_element =
+              Diff_Directory { name = directory; children = sub_dir_elements; stats = sub_dir_stats }
+            in
             (sub_dir_element :: lines, add_diff_stats stats sub_dir_stats))
-          ([], { both = 0; only1 = 0; only2 = 0; neither = 0 }) sub_dirs in
-      let sub_files_element = List.map (fun file -> Diff_File file) sub_files in
+          ([], zero_diff_stats) sub_dirs in
+      let sub_files_element =
+        List.map (fun (name, html_file, stats) -> Diff_File { name; html_file; stats }) sub_files
+      in
       let dir_stats = add_diff_stats dir_stats (sum_diff_stats sub_files) in
       ((List.rev dir_elements) @ sub_files_element, dir_stats)
     in
@@ -465,28 +460,28 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
       title
       overall_coverage;
 
-    let print_line =
-      let write_meter s =
-        let total = diff_total s in
-        let p_both = if total = 0 then 0. else 100. *. (float_of_int s.both) /. (float_of_int total) in
-        let p_only2 = if total = 0 then 0. else 100. *. (float_of_int s.only2) /. (float_of_int total) in
-        let p_only1 = if total = 0 then 0. else 100. *. (float_of_int s.only1) /. (float_of_int total) in
-        let percentage = Printf.sprintf "%.00f" (floor (diff_percentage s)) in
-        write {|        <span class="meter">
+    let write_meter s =
+      let total = diff_total s in
+      let p_both = if total = 0 then 0. else 100. *. (float_of_int s.both) /. (float_of_int total) in
+      let p_only2 = if total = 0 then 0. else 100. *. (float_of_int s.only2) /. (float_of_int total) in
+      let p_only1 = if total = 0 then 0. else 100. *. (float_of_int s.only1) /. (float_of_int total) in
+      let percentage = Printf.sprintf "%.00f" (floor (diff_percentage s)) in
+      write {|        <span class="meter">
           <span class="both" style="width: %.00f%%"></span>
           <span class="new" style="width: %.00f%%"></span>
           <span class="lost" style="width: %.00f%%"></span>
         </span>
         <span class="percentage">%s%% <span class="stats">(%d, +%d, -%d, %d)</span></span>
 |}
-          p_both
-          p_only2
-          p_only1
-          percentage
-          s.both s.only2 s.only1 s.neither;
-      in
-      function
-      | Diff_File (name, html_file, s) ->
+        p_both
+        p_only2
+        p_only1
+        percentage
+        s.both s.only2 s.only1 s.neither
+    in
+
+    let print_line = function
+      | Diff_File { name; html_file; stats = s } ->
          let p = diff_percentage s in
          let total = diff_total s in
          write {|      <div data-both="%d" data-only1="%d" data-only2="%d" data-neither="%d" data-total="%d" data-statements="%d" data-coverage="%.2f">
@@ -509,7 +504,7 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
 |}
            relative_html_file
            dirname basename;
-      | Diff_Directory (_, _, _) ->
+      | Diff_Directory _ ->
          ()
     in
 
@@ -570,31 +565,27 @@ let output_for_source_file
     {Bisect_common.filename; points; counts} =
 
   let len = Array.length counts in
-  let stats = ref (0, 0) in
-  let points =
+
+  let pts_with_stats =
     points
     |> Array.to_list
     |> List.mapi (fun index offset -> (offset, index))
     |> List.sort compare
+    |> List.map (fun (offset, index) ->
+      let nb = if index < len then counts.(index) else 0 in
+      (offset, nb))
   in
-  let pts =
-    ref (points |> List.map (fun (offset, index) ->
-      let nb =
-        if index < len then
-          counts.(index)
-        else
-          0
-      in
-      let visited, total = !stats in
-      let visited =
-        if nb > 0 then
-          visited + 1
-        else
-          visited
-      in
-      stats := (visited, total + 1);
-      (offset, nb)))
+
+  let stats =
+    List.fold_left (fun (visited, total) (_, nb) ->
+      if nb > 0 then (visited + 1, total + 1)
+      else (visited, total + 1)
+    )
+    (0, 0)
+    pts_with_stats
   in
+
+  let pts = ref pts_with_stats in
   let dirname, basename = split_filename filename in
   Util.mkdirs (Filename.dirname html_file_on_disk);
   let in_channel =
@@ -662,7 +653,7 @@ let output_for_source_file
     let write format = Printf.fprintf out_channel format in
 
     (* Head and header. *)
-    let file_coverage = Printf.sprintf "%.02f%%" (percentage !stats) in
+    let file_coverage = Printf.sprintf "%.02f%%" (percentage stats) in
     write {|<!DOCTYPE html>
 <html lang="en"%s>
   <head>
@@ -767,7 +758,7 @@ let output_for_source_file
 
   close_in_noerr in_channel;
   close_out_noerr out_channel;
-  !stats
+  stats
 
 
 
@@ -820,6 +811,57 @@ let escape_diff_line tab_size line offset points =
     end;
   Buffer.contents buff
 
+(* Helper to determine the diff state of a single point. *)
+let get_point_state n1 n2 =
+  if n1 > 0 && n2 > 0 then Diff_both
+  else if n1 > 0 then Diff_only1
+  else if n2 > 0 then Diff_only2
+  else Diff_neither
+
+(* Processes one line of source code and returns its representation.
+   [number] is the line number, [line] is the raw text, [tab_size] is the
+   tab width, [start_ofs] is the byte offset of the line start, and
+   [before] are points on this line. *)
+let handle_diff_line tab_size number line start_ofs before =
+  (* Escape the line content and wrap points in markers. *)
+  let line' = escape_diff_line tab_size line start_ofs before in
+
+  (* Determine the overall coverage state of the line. *)
+  let state =
+    match before with
+    | [] -> Diff_none
+    | (_, n1, n2)::tl ->
+      let first_state = get_point_state n1 n2 in
+      (* Check if all points on this line have the same state. *)
+      let is_mixed =
+        List.exists (fun (_, n1, n2) -> get_point_state n1 n2 <> first_state) tl
+      in
+      if is_mixed then
+        (* If states are mixed, calculate the breakdown for the tooltip. *)
+        let b, o1, o2, n =
+          List.fold_left (fun (b, o1, o2, n) (_, n1, n2) ->
+            match get_point_state n1 n2 with
+            | Diff_both -> (b + 1, o1, o2, n)
+            | Diff_only1 -> (b, o1 + 1, o2, n)
+            | Diff_only2 -> (b, o1, o2 + 1, n)
+            | Diff_neither -> (b, o1, o2, n + 1)
+            | Diff_none | Diff_mixed _ -> assert false
+          )
+          (* Start with the state of the first point. *)
+          (match first_state with
+           | Diff_both -> (1, 0, 0, 0)
+           | Diff_only1 -> (0, 1, 0, 0)
+           | Diff_only2 -> (0, 0, 1, 0)
+           | Diff_neither -> (0, 0, 0, 1)
+           | Diff_mixed _ | Diff_none -> assert false)
+          tl
+        in
+        Diff_mixed (Printf.sprintf "Mixed coverage: %d both, %d only 1st, %d only 2nd, %d neither" b o1 o2 n)
+      else
+        first_state
+  in
+  (number, line', state)
+
 (** Generates an HTML page for a single source file in a diff report. *)
 let output_for_diff_source_file
     tab_size title theme source_file_on_disk html_file_on_disk
@@ -828,30 +870,31 @@ let output_for_diff_source_file
 
   let len1 = Array.length counts1 in
   let len2 = Array.length counts2 in
-  let stats = ref { both = 0; only1 = 0; only2 = 0; neither = 0 } in
 
   (* Combine instrumentation points from both reports and calculate stats. *)
-  let points =
+  let pts_with_stats =
     points
     |> Array.to_list
     |> List.mapi (fun index offset -> (offset, index))
     |> List.sort compare
-  in
-  let pts =
-    ref (points |> List.map (fun (offset, index) ->
+    |> List.map (fun (offset, index) ->
       let n1 = if index < len1 then counts1.(index) else 0 in
       let n2 = if index < len2 then counts2.(index) else 0 in
-      let s = !stats in
-      (* Update aggregate stats for the file based on this point's state. *)
-      let s =
-        if n1 > 0 && n2 > 0 then { s with both = s.both + 1 }
-        else if n1 > 0 then { s with only1 = s.only1 + 1 }
-        else if n2 > 0 then { s with only2 = s.only2 + 1 }
-        else { s with neither = s.neither + 1 }
-      in
-      stats := s;
-      (offset, n1, n2)))
+      (offset, n1, n2))
   in
+
+  let stats =
+    List.fold_left (fun s (_, n1, n2) ->
+      if n1 > 0 && n2 > 0 then { s with both = s.both + 1 }
+      else if n1 > 0 then { s with only1 = s.only1 + 1 }
+      else if n2 > 0 then { s with only2 = s.only2 + 1 }
+      else { s with neither = s.neither + 1 }
+    )
+    zero_diff_stats
+    pts_with_stats
+  in
+
+  let pts = ref pts_with_stats in
   let dirname, basename = split_filename filename in
   Util.mkdirs (Filename.dirname html_file_on_disk);
   let in_channel =
@@ -888,57 +931,6 @@ let output_for_diff_source_file
     Filename.concat path_to_report_root "coverage.js" in
   let index_html = Filename.concat path_to_report_root "index.html" in
 
-  (* Processes one line of source code and returns its representation.
-     [number] is the line number, [line] is the raw text, [start_ofs] is the
-     byte offset of the line start, and [before] are points on this line. *)
-  let handle_line number line start_ofs before =
-    (* Escape the line content and wrap points in markers. *)
-    let line' = escape_diff_line tab_size line start_ofs before in
-
-    (* Determine the overall coverage state of the line. *)
-    let state =
-      match before with
-      | [] -> Diff_none
-      | (_, n1, n2)::tl ->
-        (* Helper to determine the diff state of a single point. *)
-        let get_state n1 n2 =
-          if n1 > 0 && n2 > 0 then Diff_both
-          else if n1 > 0 then Diff_only1
-          else if n2 > 0 then Diff_only2
-          else Diff_neither
-        in
-        let first_state = get_state n1 n2 in
-        (* Check if all points on this line have the same state. *)
-        let is_mixed =
-          List.exists (fun (_, n1, n2) -> get_state n1 n2 <> first_state) tl
-        in
-        if is_mixed then
-          (* If states are mixed, calculate the breakdown for the tooltip. *)
-          let b, o1, o2, n =
-            List.fold_left (fun (b, o1, o2, n) (_, n1, n2) ->
-              match get_state n1 n2 with
-              | Diff_both -> (b + 1, o1, o2, n)
-              | Diff_only1 -> (b, o1 + 1, o2, n)
-              | Diff_only2 -> (b, o1, o2 + 1, n)
-              | Diff_neither -> (b, o1, o2, n + 1)
-              | Diff_none | Diff_mixed _ -> assert false
-            )
-            (* Start with the state of the first point. *)
-            (match first_state with
-             | Diff_both -> (1, 0, 0, 0)
-             | Diff_only1 -> (0, 1, 0, 0)
-             | Diff_only2 -> (0, 0, 1, 0)
-             | Diff_neither -> (0, 0, 0, 1)
-             | Diff_mixed _ | Diff_none -> assert false)
-            tl
-          in
-          Diff_mixed (Printf.sprintf "Mixed coverage: %d both, %d only 1st, %d only 2nd, %d neither" b o1 o2 n)
-        else
-          first_state
-    in
-    (number, line', state)
-  in
-
   (try
     (* Read source file lines and process them. *)
     let lines, line_count =
@@ -950,7 +942,7 @@ let output_for_diff_source_file
           let end_ofs = pos_in in_channel in
           let before, after = Util.split (fun (o, _, _) -> o < end_ofs) !pts in
           pts := after;
-          let line_representation = handle_line number line start_ofs before in
+          let line_representation = handle_diff_line tab_size number line start_ofs before in
           read (number + 1) (line_representation::acc)
       in
       read 1 []
@@ -973,7 +965,7 @@ let output_for_diff_source_file
     let write format = Printf.fprintf out_channel format in
 
     (* HTML Head and header. *)
-    let file_coverage = Printf.sprintf "%.02f%%" (diff_percentage !stats) in
+    let file_coverage = Printf.sprintf "%.02f%%" (diff_percentage stats) in
     write {|<!DOCTYPE html>
 <html lang="en"%s>
   <head>
@@ -1081,7 +1073,7 @@ let output_for_diff_source_file
 
   close_in_noerr in_channel;
   close_out_noerr out_channel;
-  !stats
+  stats
 
 
 

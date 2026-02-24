@@ -193,6 +193,35 @@ function handle_settings_clicks()
         return el.cloneNode(true);
     });
 
+    function get_stats(el) {
+        var stats_span = el.querySelector("span.stats");
+        var stats_text = stats_span.textContent;
+        var is_diff_view = document.body.dataset.diffView === 'true';
+
+        if (is_diff_view) {
+            var matches = stats_text.match(/\((\d+),\s*\+(\d+),\s*-(\d+),\s*(\d+)\)/);
+            if (matches) {
+                return {
+                    both: parseInt(matches[1]),
+                    only2: parseInt(matches[2]),
+                    only1: parseInt(matches[3]),
+                    neither: parseInt(matches[4]),
+                    total: parseInt(matches[1]) + parseInt(matches[2]) + parseInt(matches[3]) + parseInt(matches[4])
+                };
+            }
+            return { both: 0, only2: 0, only1: 0, neither: 0, total: 0 };
+        } else {
+            var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
+            if (matches) {
+                return {
+                    visited: parseInt(matches[1]),
+                    total: parseInt(matches[2])
+                };
+            }
+            return { visited: 0, total: 0 };
+        }
+    }
+
     function render() {
         var show_empty = show_empty_checkbox.checked;
         var use_tree_view = tree_view_checkbox.checked;
@@ -246,13 +275,13 @@ function handle_settings_clicks()
                     }
                     return -parseFloat(item.dataset.coverage);
                 case 'lost':
-                    if (type === 'file') return -parseInt(item.element.dataset.only1);
+                    if (type === 'file') return -get_stats(item.element).only1;
                     if (type === 'directory') return -item.stats.only1;
-                    return -parseInt(item.dataset.only1);
+                    return -get_stats(item).only1;
                 case 'new':
-                    if (type === 'file') return -parseInt(item.element.dataset.only2);
+                    if (type === 'file') return -get_stats(item.element).only2;
                     if (type === 'directory') return -item.stats.only2;
-                    return -parseInt(item.dataset.only2);
+                    return -get_stats(item).only2;
                 case 'filename':
                 default:
                     if (type === 'file') return item.name.toLowerCase();
@@ -280,35 +309,20 @@ function handle_settings_clicks()
                 var basename = link.lastChild.textContent;
                 var path = dirname + basename;
 
-                var stats_span = file_element.querySelector("span.stats");
-                var stats_text = stats_span.textContent;
-                var visited, total, both, only1, only2, neither;
-
-                if (is_diff_view) {
-                    var matches = stats_text.match(/\((\d+),\s*\+(\d+),\s*-(\d+),\s*(\d+)\)/);
-                    both = parseInt(matches[1]);
-                    only2 = parseInt(matches[2]);
-                    only1 = parseInt(matches[3]);
-                    neither = parseInt(matches[4]);
-                    total = both + only1 + only2 + neither;
-                } else {
-                    var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
-                    visited = parseInt(matches[1]);
-                    total = parseInt(matches[2]);
-                }
+                var stats = get_stats(file_element);
 
                 var path_components = path.split('/').filter(function(c) { return c.length > 0; });
 
                 var current_level = tree;
                 if (is_diff_view) {
-                    tree.stats.both += both;
-                    tree.stats.only1 += only1;
-                    tree.stats.only2 += only2;
-                    tree.stats.neither += neither;
+                    tree.stats.both += stats.both;
+                    tree.stats.only1 += stats.only1;
+                    tree.stats.only2 += stats.only2;
+                    tree.stats.neither += stats.neither;
                 } else {
-                    tree.stats.visited += visited;
+                    tree.stats.visited += stats.visited;
                 }
-                tree.stats.total += total;
+                tree.stats.total += stats.total;
 
                 for (var j = 0; j < path_components.length - 1; j++) {
                     var dir = path_components[j];
@@ -321,14 +335,14 @@ function handle_settings_clicks()
                     }
                     current_level = current_level.dirs[dir];
                     if (is_diff_view) {
-                        current_level.stats.both += both;
-                        current_level.stats.only1 += only1;
-                        current_level.stats.only2 += only2;
-                        current_level.stats.neither += neither;
+                        current_level.stats.both += stats.both;
+                        current_level.stats.only1 += stats.only1;
+                        current_level.stats.only2 += stats.only2;
+                        current_level.stats.neither += stats.neither;
                     } else {
-                        current_level.stats.visited += visited;
+                        current_level.stats.visited += stats.visited;
                     }
-                    current_level.stats.total += total;
+                    current_level.stats.total += stats.total;
                 }
 
                 var filename = path_components.length > 0 ? path_components[path_components.length - 1] : basename;
@@ -394,23 +408,16 @@ function handle_settings_clicks()
                     }
 
                     node.files.forEach(function(file) {
-                        var stats_span = file.element.querySelector("span.stats");
-                        var stats_text = stats_span.textContent;
+                        var stats = get_stats(file.element);
                         if (is_diff_view) {
-                            var matches = stats_text.match(/\((\d+),\s*\+(\d+),\s*-(\d+),\s*(\d+)\)/);
-                            var both = parseInt(matches[1]);
-                            var only2 = parseInt(matches[2]);
-                            var only1 = parseInt(matches[3]);
-                            var neither = parseInt(matches[4]);
-                            file_stats.both += both;
-                            file_stats.only1 += only1;
-                            file_stats.only2 += only2;
-                            file_stats.neither += neither;
-                            file_stats.total += (both + only1 + only2 + neither);
+                            file_stats.both += stats.both;
+                            file_stats.only1 += stats.only1;
+                            file_stats.only2 += stats.only2;
+                            file_stats.neither += stats.neither;
+                            file_stats.total += stats.total;
                         } else {
-                            var matches = stats_text.match(/\((\d+)\s*\/\s*(\d+)\)/);
-                            file_stats.visited += parseInt(matches[1]);
-                            file_stats.total += parseInt(matches[2]);
+                            file_stats.visited += stats.visited;
+                            file_stats.total += stats.total;
                         }
                     });
 
@@ -582,7 +589,12 @@ function handle_settings_clicks()
 
     var sorting = localStorage.getItem("sorting");
     if (sorting === null) sorting = "filename";
-    document.querySelector("#" + sorting + "-sort").checked = true;
+    var sorting_radio = document.querySelector("#" + sorting + "-sort");
+    if (sorting_radio) {
+        sorting_radio.checked = true;
+    } else {
+        document.querySelector("#filename-sort").checked = true;
+    }
 
     render();
 };

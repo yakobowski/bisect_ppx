@@ -6,6 +6,10 @@
 
     --meter-unvisited-color: #f9c3c3;
     --meter-visited-color: #9ed09f;
+    --meter-both-color: #9ed09f;
+    --meter-new-color: #e8f5e9;
+    --meter-lost-color: #ffcc80;
+    --meter-none-color: #f9c3c3;
     --meter-separator-color: white;
 
     --color: #000;
@@ -17,6 +21,17 @@
     --unvisited-color: #ffecec;
     --unvisited-number-color: rgba(255, 128, 128, 0.5);
     --somevisited-color: #ffd;
+
+    --both-color: #eaffea;
+    --both-number-color: rgba(64, 192, 64, 0.2);
+    --new-color: #f9fdf9;
+    --new-number-color: rgba(129, 199, 132, 0.1);
+    --lost-color: #fff3e0;
+    --lost-number-color: rgba(255, 183, 77, 0.2);
+    --none-color: #ffecec;
+    --none-number-color: rgba(255, 128, 128, 0.5);
+    --mixed-color: #f3e5f5;
+
     --highlight-color: #a0fbff;
     --line-number-color: rgba(0, 0, 0, 0.4);
     --unvisited-margin-color: #d69e9e;
@@ -40,6 +55,10 @@
 
     --meter-unvisited-color: #622;
     --meter-visited-color: #252;
+    --meter-both-color: #252;
+    --meter-new-color: #2e7d32;
+    --meter-lost-color: #e65100;
+    --meter-none-color: #622;
     --meter-separator-color: black;
 
     --color: #bebebe;
@@ -51,6 +70,17 @@
     --unvisited-color: #380000;
     --unvisited-number-color: #822;
     --somevisited-color: #303000;
+
+    --both-color: #002800;
+    --both-number-color: #252;
+    --new-color: #003300;
+    --new-number-color: #1b5e20;
+    --lost-color: #4a2b00;
+    --lost-number-color: #e65100;
+    --none-color: #380000;
+    --none-number-color: #822;
+    --mixed-color: #311b92;
+
     --highlight-color: #303e3f;
     --line-number-color: rgba(230, 230, 230, 0.3);
     --unvisited-margin-color: #622;
@@ -75,6 +105,10 @@
 
         --meter-unvisited-color: #622;
         --meter-visited-color: #252;
+        --meter-both-color: #252;
+        --meter-new-color: #2e7d32;
+        --meter-lost-color: #e65100;
+        --meter-none-color: #622;
         --meter-separator-color: black;
 
         --color: #bebebe;
@@ -85,6 +119,17 @@
         --unvisited-color: #380000;
         --unvisited-number-color: #822;
         --somevisited-color: #303000;
+
+        --both-color: #002800;
+        --both-number-color: #252;
+        --new-color: #003300;
+        --new-number-color: #1b5e20;
+        --lost-color: #4a2b00;
+        --lost-number-color: #e65100;
+        --none-color: #380000;
+        --none-number-color: #822;
+        --mixed-color: #311b92;
+
         --highlight-color: #303e3f;
         --line-number-color: rgba(230, 230, 230, 0.3);
         --unvisited-margin-color: #622;
@@ -220,6 +265,26 @@ a[id] {
 
 #lines-layer .some-visited {
     background-color: var(--somevisited-color);
+}
+
+#lines-layer .both {
+    background-color: var(--both-color);
+}
+
+#lines-layer .new {
+    background-color: var(--new-color);
+}
+
+#lines-layer .lost {
+    background-color: var(--lost-color);
+}
+
+#lines-layer .neither {
+    background-color: var(--none-color);
+}
+
+#lines-layer .mixed {
+    background-color: var(--mixed-color);
 }
 
 a[id]:target + span {
@@ -363,6 +428,22 @@ code span[data-count="0"] {
     background-color: var(--unvisited-number-color);
 }
 
+code span.both {
+    background-color: var(--both-number-color);
+}
+
+code span.new {
+    background-color: var(--new-number-color);
+}
+
+code span.lost {
+    background-color: var(--lost-number-color);
+}
+
+code span.neither {
+    background-color: var(--none-number-color);
+}
+
 #tool-tip {
     display: none;
     position: fixed;
@@ -383,7 +464,7 @@ code span[data-count="0"] {
 }
 
 .meter {
-    display: inline-block;
+    display: inline-flex;
     position: relative;
     top: 3px;
     width: 5em;
@@ -392,11 +473,26 @@ code span[data-count="0"] {
 }
 
 .covered {
-    display: inline-block;
-    position: absolute;
-    width: 50%;
     height: 100%;
     background-color: var(--meter-visited-color);
+    border-right: 1px solid var(--meter-separator-color);
+}
+
+.both {
+    height: 100%;
+    background-color: var(--meter-both-color);
+    border-right: 1px solid var(--meter-separator-color);
+}
+
+.new {
+    height: 100%;
+    background-color: var(--meter-new-color);
+    border-right: 1px solid var(--meter-separator-color);
+}
+
+.lost {
+    height: 100%;
+    background-color: var(--meter-lost-color);
     border-right: 1px solid var(--meter-separator-color);
 }
 

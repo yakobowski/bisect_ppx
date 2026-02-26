@@ -18,3 +18,18 @@ val output :
   tree:bool ->
   sort_by_stats:bool ->
     unit
+
+val diff_output :
+  to_directory:string ->
+  title:string ->
+  tab_size:int ->
+  theme:[ `Auto | `Dark | `Light ] ->
+  report1:string ->
+  report2:string ->
+  source_paths:string list ->
+  ignore_missing_files:bool ->
+  expect:string list ->
+  do_not_expect:string list ->
+  tree:bool ->
+  sort_by_stats:bool ->
+  unit

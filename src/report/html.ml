@@ -84,6 +84,12 @@ let diff_percentage s =
   if total = 0 then 100.
   else 100. *. (float_of_int (s.both + s.only2)) /. (float_of_int total)
 
+(** Percentage of points covered in the first report. *)
+let diff1_percentage s =
+  let total = diff_total s in
+  if total = 0 then 100.
+  else 100. *. (float_of_int (s.both + s.only1)) /. (float_of_int total)
+
 module Diff_index_element :
 sig
   val sort_by_stats : diff_index_element list -> diff_index_element list
@@ -338,7 +344,7 @@ let output_html_index ~tree ~sort_by_stats title theme filename files =
 
 
 (** Generates the index page for a diff report. *)
-let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
+let output_html_diff_index ~tree ~sort_by_stats ~report1 ~report2 title theme filename files =
   Util.info "Writing index file...";
 
   let add_diff_stats s1 s2 = {
@@ -400,7 +406,10 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
     in
 
     let overall_coverage =
-      Printf.sprintf "%.02f%%" (floor ((diff_percentage stats) *. 100.) /. 100.) in
+      let v1 = diff1_percentage stats in
+      let v2 = diff_percentage stats in
+      let f v = floor (v *. 100.) /. 100. in
+      Printf.sprintf "%.02f%% -> %.02f%%" (f v1) (f v2) in
     write {|<!DOCTYPE html>
 <html lang="en"%s>
   <head>
@@ -409,10 +418,10 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
     <meta name="description" content="%s coverage overall"/>
     <link rel="stylesheet" type="text/css" href="coverage.css"/>
   </head>
-  <body data-tree-view="%b" data-diff-view="true">
+  <body data-tree-view="%b" data-diff-view="true" data-report1="%s" data-report2="%s">
     <div id="header">
       <h1>%s</h1>
-      <h2>%s</h2>
+      <h2 title="%s: %s&#10;%s: %s">%s</h2>
     </div>
     <div id="settings">
       <div>
@@ -457,7 +466,11 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
       title
       overall_coverage
       tree
+      report1
+      report2
       title
+      "Report 1" report1
+      "Report 2" report2
       overall_coverage;
 
     let write_meter s =
@@ -465,18 +478,22 @@ let output_html_diff_index ~tree ~sort_by_stats title theme filename files =
       let p_both = if total = 0 then 0. else 100. *. (float_of_int s.both) /. (float_of_int total) in
       let p_only2 = if total = 0 then 0. else 100. *. (float_of_int s.only2) /. (float_of_int total) in
       let p_only1 = if total = 0 then 0. else 100. *. (float_of_int s.only1) /. (float_of_int total) in
-      let percentage = Printf.sprintf "%.00f" (floor (diff_percentage s)) in
+      let v1 = floor (diff1_percentage s) in
+      let v2 = floor (diff_percentage s) in
       write {|        <span class="meter">
           <span class="both" style="width: %.00f%%"></span>
           <span class="new" style="width: %.00f%%"></span>
           <span class="lost" style="width: %.00f%%"></span>
         </span>
-        <span class="percentage">%s%% <span class="stats">(%d, +%d, -%d, %d)</span></span>
+        <span class="percentage" title="%s: %s&#10;%s: %s">%.00f%% -> %.00f%% <span class="stats">(%d, +%d, -%d, %d)</span></span>
 |}
         p_both
         p_only2
         p_only1
-        percentage
+        "Report 1" report1
+        "Report 2" report2
+        v1
+        v2
         s.both s.only2 s.only1 s.neither
     in
 
@@ -864,7 +881,7 @@ let handle_diff_line tab_size number line start_ofs before =
 
 (** Generates an HTML page for a single source file in a diff report. *)
 let output_for_diff_source_file
-    tab_size title theme source_file_on_disk html_file_on_disk
+    ~report1 ~report2 tab_size title theme source_file_on_disk html_file_on_disk
     {Bisect_common.filename; points; counts = counts1}
     {Bisect_common.counts = counts2; _} =
 
@@ -965,7 +982,11 @@ let output_for_diff_source_file
     let write format = Printf.fprintf out_channel format in
 
     (* HTML Head and header. *)
-    let file_coverage = Printf.sprintf "%.02f%%" (diff_percentage stats) in
+    let file_coverage =
+      let v1 = diff1_percentage stats in
+      let v2 = diff_percentage stats in
+      let f v = floor (v *. 100.) /. 100. in
+      Printf.sprintf "%.02f%% -> %.02f%%" (f v1) (f v2) in
     write {|<!DOCTYPE html>
 <html lang="en"%s>
   <head>
@@ -983,7 +1004,7 @@ let output_for_diff_source_file
           <span class="dirname">%s</span>%s
         </a>
       </h1>
-      <h2>%s</h2>
+      <h2 title="%s: %s&#10;%s: %s">%s</h2>
     </div>
     <div id="navbar">
 |}
@@ -996,6 +1017,8 @@ let output_for_diff_source_file
       highlight_js
       index_html
       dirname basename
+      "Report 1" report1
+      "Report 2" report2
       file_coverage;
 
     (* Navigation bar items. *)
@@ -1198,8 +1221,8 @@ let diff_output
         let html_file_relative = filename ^ ".html" in
         let stats =
           output_for_diff_source_file
-            tab_size title theme source_file_on_disk html_file_on_disk
-            file1 file2 in
+            ~report1 ~report2 tab_size title theme source_file_on_disk
+            html_file_on_disk file1 file2 in
         (filename, html_file_relative, stats)::acc
     end
     all_filenames
@@ -1209,6 +1232,8 @@ let diff_output
   output_html_diff_index
     ~tree
     ~sort_by_stats
+    ~report1
+    ~report2
     title
     theme
     (Filename.concat to_directory "index.html")

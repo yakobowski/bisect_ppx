@@ -202,7 +202,7 @@ let html_diff =
       info ["o"] ~docv:"DIRECTORY" ~doc:"Output directory.")
   in
   let title =
-    Arg.(value @@ opt string "Coverage report" @@
+    Arg.(value @@ opt string "Coverage diff" @@
       info ["title"] ~docv:"STRING" ~doc:"Report title for use in HTML pages.")
   in
   let tab_size =

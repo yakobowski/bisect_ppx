@@ -20,4 +20,6 @@
             <input type="radio" id="new-sort" name="sort" value="new" />
             <label for="new-sort">newly covered</label>
   $ grep "percentage" _coverage/index.html
-          <span class="percentage" title="Report 1: report1.coverage&#10;Report 2: report1.coverage">100% -> 100% <span class="stats">(1, +0, -0, 0)</span></span>
+          <span class="percentage">100% -> 100% <span class="stats">(1, +0, -0, 0)</span></span>
+  $ grep "h2" _coverage/index.html
+        <h2 title="Report 1: report1.coverage&#10;Report 2: report1.coverage">100.00% -> 100.00%</h2>

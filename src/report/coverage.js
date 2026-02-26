@@ -228,8 +228,6 @@ function handle_settings_clicks()
         var group_files = group_files_checkbox.checked;
         var sorting = document.querySelector("#sorting-options input:checked").value;
         var is_diff_view = document.body.dataset.diffView === 'true';
-        var report1 = document.body.dataset.report1;
-        var report2 = document.body.dataset.report2;
 
         var visible_files = all_files.filter(function(el) {
             return show_empty || el.dataset.total !== '0';
@@ -424,13 +422,11 @@ function handle_settings_clicks()
                     });
 
                     var file_percentage_text = '0%';
-                    var file_percentage_tooltip = '';
                     if (file_stats.total > 0) {
                         if (is_diff_view) {
                             var v1 = Math.floor(100 * (file_stats.both + file_stats.only1) / file_stats.total);
                             var v2 = Math.floor(100 * (file_stats.both + file_stats.only2) / file_stats.total);
                             file_percentage_text = v1 + '% -> ' + v2 + '%';
-                            file_percentage_tooltip = 'Report 1: ' + report1 + '\nReport 2: ' + report2;
                         } else {
                             var p = Math.floor(100 * file_stats.visited / file_stats.total);
                             file_percentage_text = p + '%';
@@ -470,7 +466,7 @@ function handle_settings_clicks()
                         '<span class="meter">' +
                         file_meter_html +
                         '</span>' +
-                        '<span class="percentage" title="' + file_percentage_tooltip + '">' + file_percentage_text + ' <span class="stats">' + file_stats_text + '</span></span>' +
+                        '<span class="percentage">' + file_percentage_text + ' <span class="stats">' + file_stats_text + '</span></span>' +
                         '<span class="dirname">(files)</span>' +
                         '</div>' +
                         '</summary>' +
@@ -479,7 +475,6 @@ function handle_settings_clicks()
                 }
 
                 var percentage_text = '0%';
-                var percentage_tooltip = '';
                 var meter_html = '';
                 var stats_text = '';
                 if (node.stats.total > 0) {
@@ -487,7 +482,6 @@ function handle_settings_clicks()
                         var v1 = Math.floor(100 * (node.stats.both + node.stats.only1) / node.stats.total);
                         var v2 = Math.floor(100 * (node.stats.both + node.stats.only2) / node.stats.total);
                         percentage_text = v1 + '% -> ' + v2 + '%';
-                        percentage_tooltip = 'Report 1: ' + report1 + '\nReport 2: ' + report2;
                         var p_both = Math.floor(100 * node.stats.both / node.stats.total);
                         var p_new = Math.floor(100 * node.stats.only2 / node.stats.total);
                         var p_lost = Math.floor(100 * node.stats.only1 / node.stats.total);
@@ -512,7 +506,7 @@ function handle_settings_clicks()
                             '<span class="meter">' +
                             meter_html +
                             '</span>' +
-                            '<span class="percentage" title="' + percentage_tooltip + '">' + percentage_text + ' <span class="stats">' + stats_text + '</span></span>' +
+                            '<span class="percentage">' + percentage_text + ' <span class="stats">' + stats_text + '</span></span>' +
                             '<span class="dirname">(root)</span>' +
                             '</div>' +
                             '</summary>' +
@@ -543,7 +537,7 @@ function handle_settings_clicks()
                     '<span class="meter">' +
                     meter_html +
                     '</span>' +
-                    '<span class="percentage" title="' + percentage_tooltip + '">' + percentage_text + ' <span class="stats">' + stats_text + '</span></span>' +
+                    '<span class="percentage">' + percentage_text + ' <span class="stats">' + stats_text + '</span></span>' +
                     '<span class="dirname">' + name + '/</span>' +
                     '</div>' +
                     '</summary>' +

@@ -418,7 +418,7 @@ let output_html_diff_index ~tree ~sort_by_stats ~report1 ~report2 title theme fi
     <meta name="description" content="%s coverage overall"/>
     <link rel="stylesheet" type="text/css" href="coverage.css"/>
   </head>
-  <body data-tree-view="%b" data-diff-view="true" data-report1="%s" data-report2="%s">
+  <body data-tree-view="%b" data-diff-view="true">
     <div id="header">
       <h1>%s</h1>
       <h2 title="%s: %s&#10;%s: %s">%s</h2>
@@ -466,8 +466,6 @@ let output_html_diff_index ~tree ~sort_by_stats ~report1 ~report2 title theme fi
       title
       overall_coverage
       tree
-      report1
-      report2
       title
       "Report 1" report1
       "Report 2" report2
@@ -485,13 +483,11 @@ let output_html_diff_index ~tree ~sort_by_stats ~report1 ~report2 title theme fi
           <span class="new" style="width: %.00f%%"></span>
           <span class="lost" style="width: %.00f%%"></span>
         </span>
-        <span class="percentage" title="%s: %s&#10;%s: %s">%.00f%% -> %.00f%% <span class="stats">(%d, +%d, -%d, %d)</span></span>
+        <span class="percentage">%.00f%% -> %.00f%% <span class="stats">(%d, +%d, -%d, %d)</span></span>
 |}
         p_both
         p_only2
         p_only1
-        "Report 1" report1
-        "Report 2" report2
         v1
         v2
         s.both s.only2 s.only1 s.neither
